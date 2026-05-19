@@ -32,23 +32,50 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sports_soccer),
-            label: 'Mecze',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade900,
+          border: Border(
+            top: BorderSide(
+              color: Colors.grey.shade800,
+              width: 1,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Ulubione',
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onTabTapped,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue.shade400,
+          unselectedItemColor: Colors.grey.shade500,
+          selectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
-        ],
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.sports_soccer, size: 26),
+              activeIcon: Icon(Icons.sports_soccer, size: 26),
+              label: 'Mecze',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.star_outline, size: 26),
+              activeIcon: Icon(Icons.star, size: 26),
+              label: 'Ulubione',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline, size: 26),
+              activeIcon: Icon(Icons.person, size: 26),
+              label: 'Profil',
+            ),
+          ],
+        ),
       ),
     );
   }

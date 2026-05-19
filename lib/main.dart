@@ -11,8 +11,8 @@ void main() async {
   
   // Inicjalizacja Supabase
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    url: (dotenv.env['SUPABASE_URL'] ?? '').trim(),
+    anonKey: (dotenv.env['SUPABASE_ANON_KEY'] ?? '').trim(),
   );
 
   runApp(const MatchDayApp());
