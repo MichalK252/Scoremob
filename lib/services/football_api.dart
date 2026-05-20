@@ -270,4 +270,115 @@ class FootballApiService {
       throw Exception('Błąd podczas pobierania statystyk: ${response.statusCode}');
     }
   }
+
+  int _getSeasonYear() {
+    final now = DateTime.now();
+    return now.month < 7 ? now.year - 1 : now.year;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchStandings({
+    required String leagueId,
+    required String leagueCode,
+  }) async {
+    try {
+      // 1. Spróbuj pobrać z API-Football
+      return await _fetchStandingsApiFootball(leagueId);
+    } catch (e) {
+      print('API-Football standings failed, switching to Football-Data.org: $e');
+      try {
+        // 2. Fallback na Football-Data.org
+        return await _fetchStandingsFootballData(leagueCode);
+      } catch (fallbackError) {
+        print('Fallback standings failed: $fallbackError');
+        throw Exception('Błąd pobierania tabeli ligowej z obu API.\nAPI-Football: $e\nFootball-Data: $fallbackError');
+      }
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchStandingsApiFootball(String leagueId) async {
+    final season = _getSeasonYear();
+    final url = Uri.parse('$_baseUrl/standings?league=$leagueId&season=$season');
+    print('Pobieranie tabeli z API-Football: $url');
+
+    final response = await http.get(url, headers: _getHeaders());
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      _checkResponseErrors(decoded);
+      
+      final List results = decoded['response'] ?? [];
+      if (results.isEmpty) return [];
+
+      final leagueData = results[0]['league'] ?? {};
+      final List standingsGroups = leagueData['standings'] ?? [];
+      if (standingsGroups.isEmpty) return [];
+
+      final List standingsList = standingsGroups[0] ?? [];
+
+      return standingsList.map((item) {
+        final team = item['team'] ?? {};
+        final all = item['all'] ?? {};
+        return {
+          'rank': item['rank'] ?? 0,
+          'teamName': team['name'] ?? 'Nieznana',
+          'teamLogo': team['logo'] ?? '',
+          'points': item['points'] ?? 0,
+          'played': all['played'] ?? 0,
+          'won': all['win'] ?? 0,
+          'draw': all['draw'] ?? 0,
+          'lost': all['lose'] ?? 0,
+          'goalsFor': all['goals']?['for'] ?? 0,
+          'goalsAgainst': all['goals']?['against'] ?? 0,
+          'goalsDiff': item['goalsDiff'] ?? 0,
+          'form': item['form'] ?? '',
+        };
+      }).toList();
+    } else {
+      throw Exception('Błąd HTTP ${response.statusCode}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchStandingsFootballData(String leagueCode) async {
+    final apiKey = _getFootballDataKey();
+    if (apiKey == null) {
+      throw Exception('Brak klucza dla planu zapasowego (FOOTBALL_DATA_KEY) w .env');
+    }
+
+    final url = Uri.parse('https://api.football-data.org/v4/competitions/$leagueCode/standings');
+    print('Pobieranie tabeli z Football-Data.org: $url');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'X-Auth-Token': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      final List standings = decoded['standings'] ?? [];
+      if (standings.isEmpty) return [];
+
+      final List table = standings[0]['table'] ?? [];
+      return table.map((item) {
+        final team = item['team'] ?? {};
+        return {
+          'rank': item['position'] ?? 0,
+          'teamName': team['name'] ?? 'Nieznana',
+          'teamLogo': team['crest'] ?? '',
+          'points': item['points'] ?? 0,
+          'played': item['playedGames'] ?? 0,
+          'won': item['won'] ?? 0,
+          'draw': item['draw'] ?? 0,
+          'lost': item['lost'] ?? 0,
+          'goalsFor': item['goalsFor'] ?? 0,
+          'goalsAgainst': item['goalsAgainst'] ?? 0,
+          'goalsDiff': item['goalDifference'] ?? 0,
+          'form': item['form'] ?? '',
+        };
+      }).toList();
+    } else {
+      throw Exception('Błąd HTTP ${response.statusCode}');
+    }
+  }
 }

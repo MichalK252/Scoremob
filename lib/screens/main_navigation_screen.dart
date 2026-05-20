@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui'; // Wymagane dla ImageFilter (glassmorphism)
 import 'home_screen.dart';
+import 'leagues_list_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
 
@@ -16,6 +17,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
+    const LeaguesListScreen(),
     const FavoritesScreen(),
     const ProfileScreen(),
   ];
@@ -67,11 +69,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   children: [
                     // Animowany pływający wskaźnik w tle (pigułka)
                     AnimatedAlign(
-                      alignment: Alignment(-1.0 + (_currentIndex * 1.0), 0.0),
+                      alignment: Alignment(-1.0 + (_currentIndex * (2.0 / 3.0)), 0.0),
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutCubic,
                       child: FractionallySizedBox(
-                        widthFactor: 1 / 3,
+                        widthFactor: 1 / 4,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                           child: Container(
@@ -105,8 +107,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     Row(
                       children: [
                         _buildNavItem(0, Icons.sports_soccer_rounded, 'Mecze'),
-                        _buildNavItem(1, Icons.star_rounded, 'Ulubione'),
-                        _buildNavItem(2, Icons.person_rounded, 'Profil'),
+                        _buildNavItem(1, Icons.leaderboard_rounded, 'Tabele'),
+                        _buildNavItem(2, Icons.star_rounded, 'Ulubione'),
+                        _buildNavItem(3, Icons.person_rounded, 'Profil'),
                       ],
                     ),
                   ],
