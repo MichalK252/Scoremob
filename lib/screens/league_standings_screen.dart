@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/football_api.dart';
+import '../services/supabase_service.dart';
 
 class LeagueStandingsScreen extends StatefulWidget {
   final Map<String, dynamic> league;
@@ -13,9 +14,11 @@ class LeagueStandingsScreen extends StatefulWidget {
 
 class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
   final FootballApiService _apiService = FootballApiService();
+  final SupabaseService _dbService = SupabaseService();
   late Future<List<Map<String, dynamic>>> _standingsFuture;
   late int _selectedSeason;
   late List<int> _seasonsList;
+  bool _isLeagueFav = false;
 
   @override
   void initState() {
@@ -24,6 +27,42 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
     // Generuje 6 ostatnich sezonów (np. 2025, 2024, 2023, 2022, 2021, 2020)
     _seasonsList = List.generate(6, (index) => _selectedSeason - index);
     _loadStandings();
+    _checkLeagueFavoriteStatus();
+  }
+
+  void _checkLeagueFavoriteStatus() async {
+    final isFav = await _dbService.isLeagueFavorite(widget.league['id'].toString());
+    if (mounted) {
+      setState(() {
+        _isLeagueFav = isFav;
+      });
+    }
+  }
+
+  void _toggleLeagueFavorite() async {
+    try {
+      await _dbService.toggleFavoriteLeague(widget.league);
+      _checkLeagueFavoriteStatus();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(!_isLeagueFav ? 'Dodano ligę do ulubionych!' : 'Usunięto ligę z ulubionych'),
+            backgroundColor: Colors.blueAccent,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   int _getCurrentSeason() {
@@ -182,6 +221,8 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
       }
     }
 
+    final teamId = teamData['teamId']?.toString() ?? '';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF16161A),
@@ -189,28 +230,42 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: Container(
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              border: Border.all(color: const Color(0xFF24242A), width: 1),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top drag handle
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
+        bool? isFav;
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            if (isFav == null) {
+              isFav = false;
+              if (teamId.isNotEmpty) {
+                _dbService.isTeamFavorite(teamId).then((val) {
+                  setModalState(() {
+                    isFav = val;
+                  });
+                });
+              }
+            }
+
+            return SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(24.0),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  border: Border.all(color: const Color(0xFF24242A), width: 1),
                 ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top drag handle
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade800,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
                 const SizedBox(height: 20),
                 // Team Header
                 Row(
@@ -267,6 +322,46 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           color: widget.league['accent'] as Color,
                         ),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        isFav == true ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                        color: isFav == true ? Colors.redAccent : Colors.grey,
+                        size: 24,
+                      ),
+                      onPressed: () async {
+                        if (teamId.isEmpty) return;
+                        try {
+                          final teamPayload = {
+                            'id': teamId,
+                            'name': name,
+                            'logo': logo,
+                          };
+                          await _dbService.toggleFavoriteTeam(teamPayload);
+                          final newVal = await _dbService.isTeamFavorite(teamId);
+                          setModalState(() {
+                            isFav = newVal;
+                          });
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(newVal ? 'Dodano drużynę do ulubionych!' : 'Usunięto drużynę z ulubionych'),
+                              backgroundColor: Colors.blueAccent,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString().replaceAll('Exception: ', '')),
+                              backgroundColor: Colors.redAccent,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -348,6 +443,8 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
         );
       },
     );
+  },
+);
   }
 
   Widget _buildStatBox(String label, String value, {Color? color}) {
@@ -409,6 +506,16 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                   icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
+                actions: [
+                  IconButton(
+                    icon: Icon(
+                      _isLeagueFav ? Icons.star_rounded : Icons.star_border_rounded,
+                      color: _isLeagueFav ? Colors.amberAccent : Colors.white70,
+                      size: 22,
+                    ),
+                    onPressed: _toggleLeagueFavorite,
+                  ),
+                ],
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   title: Row(

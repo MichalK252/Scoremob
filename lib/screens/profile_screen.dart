@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/supabase_service.dart';
 import 'auth_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -14,6 +15,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   User? _currentUser;
   late final StreamSubscription<AuthState> _authSubscription;
   bool _isLoading = false;
+  final SupabaseService _dbService = SupabaseService();
+  int _favLeaguesCount = 0;
+  int _favTeamsCount = 0;
 
   @override
   void initState() {
@@ -24,8 +28,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _currentUser = Supabase.instance.client.auth.currentUser;
         });
+        if (_currentUser != null) {
+          _loadStats();
+        }
       }
     });
+    if (_currentUser != null) {
+      _loadStats();
+    }
+  }
+
+  void _loadStats() async {
+    try {
+      final leagues = await _dbService.fetchFavoriteLeagues();
+      final teams = await _dbService.fetchFavoriteTeams();
+      if (mounted) {
+        setState(() {
+          _favLeaguesCount = leagues.length;
+          _favTeamsCount = teams.length;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -153,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 // Title & Subtitle
                 const Text(
-                  'Konto Kibica MatchDay',
+                  'Konto ScoreMob',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
@@ -163,11 +186,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Zaloguj się lub utwórz nowe konto, aby zsynchronizować swoje ulubione zespoły, powiadomienia i spersonalizowane ustawienia.',
+                  'Zaloguj się lub załóż bezpłatne konto, aby w pełni spersonalizować swoje sportowe emocje, zapisywać ulubione drużyny, śledzić tabele ligowe i bezpiecznie synchronizować dane w chmurze.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     height: 1.5,
                   ),
                 ),
@@ -199,100 +222,182 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () => _navigateToAuth(isRegister: true),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      side: BorderSide(color: Colors.white.withOpacity(0.12)),
+                      side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
-                      'Założ bezpłatne konto',
+                      'Załóż bezpłatne konto',
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                   ),
                 ),
                 const SizedBox(height: 40),
 
-                // Benefits Card
+                // Premium virtual Fan Card preview instead of benefits list
                 Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF16161A),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF0F2B48),
+                        Color(0xFF0B192C),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Colors.blueAccent.withValues(alpha: 0.15),
+                      width: 1,
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(
                     children: [
-                      const Text(
-                        'Co zyskujesz rejestrując się?',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(Icons.sports_soccer_rounded, color: Colors.blueAccent, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'SCOREMOB FAN CARD',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 11,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.12),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'GOŚĆ',
+                                  style: TextStyle(
+                                    color: Colors.white60,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 36),
+                          const Text(
+                            'Kibic #9928',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Status karty: Nieaktywowana',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 11,
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '•••• •••• •••• 9928',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 13,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                              Icon(
+                                Icons.nfc_rounded,
+                                color: Colors.white.withValues(alpha: 0.5),
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      // Glassmorphic lock overlay
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            color: const Color(0xFF0C0C0E).withValues(alpha: 0.78),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.06),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white.withValues(alpha: 0.12),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.lock_outline_rounded,
+                                      color: Colors.blueAccent,
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'Odbierz swoją cyfrową Kartę Kibica',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Zaloguj się, aby aktywować profil i statystyki',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.45),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildBenefitRow(
-                        icon: Icons.star_rounded,
-                        color: Colors.amberAccent,
-                        title: 'Ulubione drużyny i ligi',
-                        subtitle: 'Dostęp do spersonalizowanej listy wyników na ekranie głównym.',
-                      ),
-                      const Divider(color: Color(0xFF24242A), height: 24),
-                      _buildBenefitRow(
-                        icon: Icons.notifications_active_rounded,
-                        color: Colors.greenAccent,
-                        title: 'Powiadomienia push (wkrótce)',
-                        subtitle: 'Otrzymuj alerty o golach i wynikach meczów na żywo.',
-                      ),
-                      const Divider(color: Color(0xFF24242A), height: 24),
-                      _buildBenefitRow(
-                        icon: Icons.cloud_sync_rounded,
-                        color: Colors.blueAccent,
-                        title: 'Synchronizacja danych',
-                        subtitle: 'Twoje ustawienia i ulubione zespoły są zawsze bezpieczne w chmurze.',
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBenefitRow({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String subtitle,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                subtitle,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11, height: 1.4),
-              ),
-            ],
           ),
         ),
       ],
@@ -406,17 +511,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Expanded(
                       child: _buildStatCard(
-                        title: 'Zapisane mecze',
-                        value: '0',
-                        icon: Icons.sports_soccer_rounded,
-                        iconColor: Colors.blueAccent,
+                        title: 'Ulubione drużyny',
+                        value: '$_favTeamsCount',
+                        icon: Icons.favorite_rounded,
+                        iconColor: Colors.redAccent,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildStatCard(
                         title: 'Ulubione ligi',
-                        value: '0',
+                        value: '$_favLeaguesCount',
                         icon: Icons.star_rounded,
                         iconColor: Colors.amberAccent,
                       ),

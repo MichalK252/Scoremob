@@ -5,7 +5,7 @@ import 'league_standings_screen.dart';
 class LeaguesListScreen extends StatelessWidget {
   const LeaguesListScreen({super.key});
 
-  static const List<Map<String, dynamic>> _leagues = [
+  static const List<Map<String, dynamic>> leagues = [
     {
       'id': '2',
       'code': 'CL',
@@ -97,9 +97,9 @@ class LeaguesListScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.only(top: 12, bottom: 104, left: 16, right: 16),
-        itemCount: _leagues.length,
+        itemCount: leagues.length,
         itemBuilder: (context, index) {
-          final league = _leagues[index];
+          final league = leagues[index];
           return Container(
             margin: const EdgeInsets.only(bottom: 14),
             decoration: BoxDecoration(

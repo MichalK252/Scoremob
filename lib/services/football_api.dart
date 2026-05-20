@@ -320,6 +320,7 @@ class FootballApiService {
         final team = item['team'] ?? {};
         final all = item['all'] ?? {};
         return {
+          'teamId': team['id']?.toString() ?? '',
           'rank': item['rank'] ?? 0,
           'teamName': team['name'] ?? 'Nieznana',
           'teamLogo': team['logo'] ?? '',
@@ -365,6 +366,7 @@ class FootballApiService {
       return table.map((item) {
         final team = item['team'] ?? {};
         return {
+          'teamId': team['id']?.toString() ?? '',
           'rank': item['position'] ?? 0,
           'teamName': team['name'] ?? 'Nieznana',
           'teamLogo': team['crest'] ?? '',
