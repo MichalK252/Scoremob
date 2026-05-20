@@ -279,15 +279,16 @@ class FootballApiService {
   Future<List<Map<String, dynamic>>> fetchStandings({
     required String leagueId,
     required String leagueCode,
+    int? season,
   }) async {
     try {
       // 1. Spróbuj pobrać z API-Football
-      return await _fetchStandingsApiFootball(leagueId);
+      return await _fetchStandingsApiFootball(leagueId, season);
     } catch (e) {
       print('API-Football standings failed, switching to Football-Data.org: $e');
       try {
         // 2. Fallback na Football-Data.org
-        return await _fetchStandingsFootballData(leagueCode);
+        return await _fetchStandingsFootballData(leagueCode, season);
       } catch (fallbackError) {
         print('Fallback standings failed: $fallbackError');
         throw Exception('Błąd pobierania tabeli ligowej z obu API.\nAPI-Football: $e\nFootball-Data: $fallbackError');
@@ -295,9 +296,9 @@ class FootballApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> _fetchStandingsApiFootball(String leagueId) async {
-    final season = _getSeasonYear();
-    final url = Uri.parse('$_baseUrl/standings?league=$leagueId&season=$season');
+  Future<List<Map<String, dynamic>>> _fetchStandingsApiFootball(String leagueId, int? season) async {
+    final seasonYear = season ?? _getSeasonYear();
+    final url = Uri.parse('$_baseUrl/standings?league=$leagueId&season=$seasonYear');
     print('Pobieranie tabeli z API-Football: $url');
 
     final response = await http.get(url, headers: _getHeaders());
@@ -338,13 +339,14 @@ class FootballApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> _fetchStandingsFootballData(String leagueCode) async {
+  Future<List<Map<String, dynamic>>> _fetchStandingsFootballData(String leagueCode, int? season) async {
     final apiKey = _getFootballDataKey();
     if (apiKey == null) {
       throw Exception('Brak klucza dla planu zapasowego (FOOTBALL_DATA_KEY) w .env');
     }
 
-    final url = Uri.parse('https://api.football-data.org/v4/competitions/$leagueCode/standings');
+    final seasonParam = season != null ? '?season=$season' : '';
+    final url = Uri.parse('https://api.football-data.org/v4/competitions/$leagueCode/standings$seasonParam');
     print('Pobieranie tabeli z Football-Data.org: $url');
 
     final response = await http.get(

@@ -14,11 +14,21 @@ class LeagueStandingsScreen extends StatefulWidget {
 class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
   final FootballApiService _apiService = FootballApiService();
   late Future<List<Map<String, dynamic>>> _standingsFuture;
+  late int _selectedSeason;
+  late List<int> _seasonsList;
 
   @override
   void initState() {
     super.initState();
+    _selectedSeason = _getCurrentSeason();
+    // Generuje 6 ostatnich sezonów (np. 2025, 2024, 2023, 2022, 2021, 2020)
+    _seasonsList = List.generate(6, (index) => _selectedSeason - index);
     _loadStandings();
+  }
+
+  int _getCurrentSeason() {
+    final now = DateTime.now();
+    return now.month < 7 ? now.year - 1 : now.year;
   }
 
   void _loadStandings() {
@@ -26,6 +36,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
       _standingsFuture = _apiService.fetchStandings(
         leagueId: widget.league['id'] as String,
         leagueCode: widget.league['code'] as String,
+        season: _selectedSeason,
       );
     });
   }
@@ -68,6 +79,66 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSeasonSelector(Color accentColor) {
+    return Container(
+      height: 38,
+      margin: const EdgeInsets.only(top: 14, bottom: 6),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: _seasonsList.length,
+        itemBuilder: (context, index) {
+          final season = _seasonsList[index];
+          final isSelected = _selectedSeason == season;
+          final label = '$season/${(season + 1).toString().substring(2)}';
+
+          return GestureDetector(
+            onTap: () {
+              if (_selectedSeason != season) {
+                setState(() {
+                  _selectedSeason = season;
+                  _loadStandings();
+                });
+              }
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 6.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: isSelected ? accentColor : const Color(0xFF16161A),
+                border: Border.all(
+                  color: isSelected ? accentColor : const Color(0xFF24242A),
+                  width: 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: accentColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        )
+                      ]
+                    : null,
+              ),
+              child: Center(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? Colors.black : Colors.white.withOpacity(0.7),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -169,7 +240,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Miejsce w tabeli: #$rank',
+                            'Miejsce w tabeli (Sezon $_selectedSeason/${(_selectedSeason + 1).toString().substring(2)}): #$rank',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade400,
@@ -394,6 +465,11 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                     ),
                   ),
                 ),
+              ),
+
+              // Season Selector (always visible)
+              SliverToBoxAdapter(
+                child: _buildSeasonSelector(accentColor),
               ),
 
               // Status Views
