@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/football_api.dart';
 import '../services/supabase_service.dart';
+import 'team_detail_screen.dart';
 
 class LeagueStandingsScreen extends StatefulWidget {
   final Map<String, dynamic> league;
@@ -437,6 +438,41 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                     ],
                   ),
                 ],
+                const Divider(height: 32, thickness: 1, color: Color(0xFF24242A)),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context); // Close bottom sheet
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TeamDetailScreen(
+                            teamId: teamId,
+                            teamName: name,
+                            teamLogo: logo,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Szczegóły Drużyny',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

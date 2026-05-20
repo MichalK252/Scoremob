@@ -385,4 +385,114 @@ class FootballApiService {
       throw Exception('Błąd HTTP ${response.statusCode}');
     }
   }
+
+  Future<List<Map<String, dynamic>>> searchTeams(String query) async {
+    if (query.trim().length < 3) return [];
+    try {
+      final encodedQuery = Uri.encodeComponent(query);
+      final url = Uri.parse('$_baseUrl/teams?search=$encodedQuery');
+      print('Searching teams via API-Football: $url');
+      final response = await http.get(url, headers: _getHeaders());
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+        final List list = decoded['response'] ?? [];
+        return list.map((item) {
+          final team = item['team'] ?? {};
+          final venue = item['venue'] ?? {};
+          return {
+            'teamId': team['id']?.toString() ?? '',
+            'teamName': team['name'] ?? '',
+            'teamLogo': team['logo'] ?? '',
+            'country': team['country'] ?? '',
+            'founded': team['founded']?.toString() ?? 'Brak danych',
+            'venueName': venue['name'] ?? 'Brak danych',
+            'venueCity': venue['city'] ?? 'Brak danych',
+          };
+        }).toList();
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('API-Football search failed, trying fallback: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchTeamDetails(String teamId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/teams?id=$teamId');
+      print('Fetching team details via API-Football: $url');
+      final response = await http.get(url, headers: _getHeaders());
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+        final List list = decoded['response'] ?? [];
+        if (list.isEmpty) return null;
+        
+        final item = list[0];
+        final team = item['team'] ?? {};
+        final venue = item['venue'] ?? {};
+        return {
+          'teamId': team['id']?.toString() ?? '',
+          'teamName': team['name'] ?? '',
+          'teamLogo': team['logo'] ?? '',
+          'country': team['country'] ?? '',
+          'founded': team['founded']?.toString() ?? 'Brak danych',
+          'venueName': venue['name'] ?? 'Brak danych',
+          'venueCity': venue['city'] ?? 'Brak danych',
+          'venueCapacity': venue['capacity']?.toString() ?? 'Brak danych',
+          'venueImage': venue['image'] ?? '',
+        };
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching team details: $e');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTeamFixtures({
+    required String teamId,
+    required bool upcoming,
+    int limit = 15,
+  }) async {
+    try {
+      final type = upcoming ? 'next' : 'last';
+      final url = Uri.parse('$_baseUrl/fixtures?team=$teamId&$type=$limit');
+      print('Fetching team fixtures ($type): $url');
+      final response = await http.get(url, headers: _getHeaders());
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+        final List list = decoded['response'] ?? [];
+        return list.map((item) {
+          final fixture = item['fixture'] ?? {};
+          final league = item['league'] ?? {};
+          final teams = item['teams'] ?? {};
+          final goals = item['goals'] ?? {};
+          return {
+            'id': fixture['id'],
+            'homeTeam': teams['home']?['name'] ?? 'Nieznany',
+            'homeTeamCrest': teams['home']?['logo'] ?? '',
+            'homeTeamId': teams['home']?['id'],
+            'awayTeam': teams['away']?['name'] ?? 'Nieznany',
+            'awayTeamCrest': teams['away']?['logo'] ?? '',
+            'awayTeamId': teams['away']?['id'],
+            'scoreHome': goals['home'],
+            'scoreAway': goals['away'],
+            'status': _mapStatus(fixture['status']?['short']),
+            'utcDate': fixture['date'] ?? '',
+            'league': league['name'] ?? 'Nieznana liga',
+          };
+        }).toList();
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching team fixtures: $e');
+      return [];
+    }
+  }
 }

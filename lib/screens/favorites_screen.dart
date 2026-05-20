@@ -6,6 +6,7 @@ import '../services/supabase_service.dart';
 import 'leagues_list_screen.dart';
 import 'league_standings_screen.dart';
 import 'auth_screen.dart';
+import 'team_detail_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -384,6 +385,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         final team = _favoriteTeams[index];
         final name = team['team_name'] as String;
         final logo = team['team_logo'] as String;
+        final teamId = team['team_id'] as String;
 
         return Container(
           decoration: BoxDecoration(
@@ -391,58 +393,78 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
           ),
-          child: Stack(
-            children: [
-              // Unfavorite Toggle Button
-              Positioned(
-                top: 4,
-                right: 4,
-                child: IconButton(
-                  icon: const Icon(Icons.favorite_rounded, color: Colors.redAccent, size: 20),
-                  onPressed: () => _unfavoriteTeam(team),
-                  constraints: const BoxConstraints(),
-                  padding: const EdgeInsets.all(8),
-                ),
-              ),
-              // Logo and Name Column
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: logo,
-                        width: 50,
-                        height: 50,
-                        placeholder: (context, url) => const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 1.5),
-                        ),
-                        errorWidget: (context, url, error) => const Icon(
-                          Icons.sports_soccer_rounded,
-                          size: 40,
-                          color: Colors.grey,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TeamDetailScreen(
+                        teamId: teamId,
+                        teamName: name,
+                        teamLogo: logo,
+                      ),
+                    ),
+                  ).then((_) => _loadFavorites());
+                },
+                child: Stack(
+                  children: [
+                    // Unfavorite Toggle Button
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: IconButton(
+                        icon: const Icon(Icons.favorite_rounded, color: Colors.redAccent, size: 20),
+                        onPressed: () => _unfavoriteTeam(team),
+                        constraints: const BoxConstraints(),
+                        padding: const EdgeInsets.all(8),
+                      ),
+                    ),
+                    // Logo and Name Column
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: logo,
+                              width: 50,
+                              height: 50,
+                              placeholder: (context, url) => const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 1.5),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.sports_soccer_rounded,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              name,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        name,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         );
       },
