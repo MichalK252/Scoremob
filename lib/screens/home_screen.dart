@@ -406,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 104.0, left: 12.0, right: 12.0),
                   itemCount: sortedLeagues.length,
                   itemBuilder: (context, leagueIndex) {
                     final league = sortedLeagues[leagueIndex];
