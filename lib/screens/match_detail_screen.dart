@@ -400,6 +400,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               itemCount: events.length,
               separatorBuilder: (context, index) => const Divider(
                 height: 16,
@@ -645,6 +646,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             itemCount: homeXI.length > awayXI.length ? homeXI.length : awayXI.length,
             separatorBuilder: (context, index) => const Divider(height: 1, thickness: 0.5, color: Color(0xFF24242A)),
             itemBuilder: (context, index) {
@@ -742,6 +744,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             itemCount: homeSubs.length > awaySubs.length ? homeSubs.length : awaySubs.length,
             separatorBuilder: (context, index) => const Divider(height: 1, thickness: 0.5, color: Color(0xFF24242A)),
             itemBuilder: (context, index) {

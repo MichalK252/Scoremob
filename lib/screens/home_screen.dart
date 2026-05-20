@@ -459,6 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ListView.separated(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
+                            padding: EdgeInsets.zero,
                             itemCount: leagueMatches.length,
                             separatorBuilder: (context, index) => const Divider(
                               height: 1,
