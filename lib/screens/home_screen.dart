@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../services/football_api.dart';
+import 'match_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,32 +15,42 @@ class _HomeScreenState extends State<HomeScreen> {
   final FootballApiService _apiService = FootballApiService();
   late Future<List<Map<String, dynamic>>> _matchesFuture;
   late DateTime _selectedDate;
-  late DateTime _currentMonthStart;
   late ScrollController _scrollController;
   late List<DateTime> _dates;
 
-  // Mapa priorytetów lig (im niższa wartość, tym bardziej popularna liga)
   static const Map<String, int> _leaguePriority = {
+    // API-Football IDs
+    '2': 1,    // UEFA Champions League
+    '1': 2,    // FIFA World Cup
+    '39': 3,   // Premier League
+    '140': 4,  // La Liga
+    '78': 5,   // Bundesliga
+    '135': 6,  // Serie A
+    '61': 7,   // Ligue 1
+    '106': 8,  // Ekstraklasa
+    '3': 9,    // UEFA Europa League
+    '13': 10,  // Copa Libertadores
+    '71': 11,  // Serie A Brazil
+
+    // Football-Data.org codes (Zapasowe API)
     'CL': 1,   // UEFA Champions League
     'WC': 2,   // FIFA World Cup
-    'PL': 3,   // Premier League (Anglia)
-    'PD': 4,   // Primera Division / La Liga (Hiszpania)
-    'BL1': 5,  // Bundesliga (Niemcy)
-    'SA': 6,   // Serie A (Włochy)
-    'FL1': 7,  // Ligue 1 (Francja)
-    'ELC': 8,  // Championship (Anglia)
-    'DED': 9,  // Eredivisie (Holandia)
-    'PPL': 10, // Primeira Liga (Portugalia)
-    'CLI': 11, // Copa Libertadores (Ameryka Południowa)
-    'BSA': 12, // Campeonato Brasileiro Série A (Brazylia)
+    'PL': 3,   // Premier League
+    'PD': 4,   // La Liga (Primera Division)
+    'BL1': 5,  // Bundesliga
+    'SA': 6,   // Serie A
+    'FL1': 7,  // Ligue 1
+    'ELC': 8,  // Championship
+    'DED': 9,  // Eredivisie
+    'PPL': 10, // Primeira Liga
+    'CLI': 11, // Copa Libertadores
+    'BSA': 12, // Serie A Brazil
   };
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    // Pobieramy mecze zaczynając od 4 dni wstecz, aby użytkownik widział też wczorajsze/niedawne mecze
-    _currentMonthStart = DateTime.now().subtract(const Duration(days: 4));
     _scrollController = ScrollController();
     _updateDatesList(_selectedDate);
     _loadMatches();
@@ -57,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadMatches() {
     setState(() {
-      _matchesFuture = _apiService.fetchMatches(date: _currentMonthStart);
+      _matchesFuture = _apiService.fetchMatches(date: _selectedDate);
     });
   }
 
@@ -101,14 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _selectedDate = date;
-
-      // Jeśli wybrana data jest poza zakresem bufora (10 dni), pobieramy nową paczkę
-      // wyśrodkowaną tak, by wybrana data była w jej połowie (np. startuje 4 dni wstecz)
-      final daysDifference = _selectedDate.difference(_currentMonthStart).inDays;
-      if (daysDifference < 0 || daysDifference > 9) {
-        _currentMonthStart = _selectedDate.subtract(const Duration(days: 4));
-        _loadMatches();
-      }
+      _loadMatches();
     });
 
     _scrollToDate(date);
@@ -213,12 +217,9 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Map<String, dynamic>> matches,
     DateTime date,
   ) {
-    return matches.where((match) {
-      final matchDate = DateTime.parse(match['utcDate']).toLocal();
-      return matchDate.year == date.year &&
-          matchDate.month == date.month &&
-          matchDate.day == date.day;
-    }).toList();
+    // API już filtruje mecze po dacie (w czasie UTC). Zwracamy całą listę,
+    // aby zapobiec znikaniu meczów z powodu przesunięcia stref czasowych (np. meczów nocnych).
+    return matches;
   }
 
   // Grupowanie meczów po ligach
@@ -466,7 +467,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             itemBuilder: (context, matchIndex) {
                               final match = leagueMatches[matchIndex];
-                              return _buildMatchRow(match);
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MatchDetailScreen(match: match),
+                                    ),
+                                  );
+                                },
+                                child: _buildMatchRow(match),
+                              );
                             },
                           ),
                         ],
