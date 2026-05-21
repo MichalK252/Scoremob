@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/football_api.dart';
 import '../services/supabase_service.dart';
 import 'match_detail_screen.dart';
+import 'leagues_list_screen.dart';
 
 class TeamDetailScreen extends StatefulWidget {
   final String teamId;
@@ -29,17 +30,20 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
   Map<String, dynamic>? _teamDetails;
   List<Map<String, dynamic>> _lastMatches = [];
   List<Map<String, dynamic>> _upcomingMatches = [];
+  List<Map<String, dynamic>> _standings = [];
+  String? _standingsLeagueName;
   
   bool _isLoadingDetails = true;
   bool _isLoadingLastMatches = true;
   bool _isLoadingUpcomingMatches = true;
+  bool _isLoadingStandings = true;
   bool _isFavorite = false;
   bool _isDbActionInProgress = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadTeamData();
     _checkFavoriteStatus();
   }
@@ -69,6 +73,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     _fetchDetails();
     _fetchLastMatches();
     _fetchUpcomingMatches();
+    _fetchStandings();
   }
 
   Future<void> _fetchDetails() async {
@@ -96,10 +101,11 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
         teamId: widget.teamId,
         upcoming: false,
         limit: 15,
+        teamName: widget.teamName,
       );
       if (mounted) {
         setState(() {
-          _lastMatches = matches;
+          _lastMatches = matches.reversed.toList();
           _isLoadingLastMatches = false;
         });
       }
@@ -119,6 +125,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
         teamId: widget.teamId,
         upcoming: true,
         limit: 15,
+        teamName: widget.teamName,
       );
       if (mounted) {
         setState(() {
@@ -133,6 +140,65 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
           _isLoadingUpcomingMatches = false;
         });
       }
+    }
+  }
+
+  /// Detect the team's league from match data and fetch standings
+  Future<void> _fetchStandings() async {
+    // Wait for matches to load so we can detect the league
+    for (int i = 0; i < 20; i++) {
+      if (!_isLoadingLastMatches && !_isLoadingUpcomingMatches) break;
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
+
+    // Try to detect league from loaded matches
+    String? leagueName;
+    final allMatches = [..._lastMatches, ..._upcomingMatches];
+    for (final m in allMatches) {
+      final league = m['league'] as String? ?? '';
+      if (league.isNotEmpty && league != 'Nieznana liga') {
+        leagueName = league;
+        break;
+      }
+    }
+
+    if (leagueName == null || leagueName.isEmpty) {
+      if (mounted) setState(() => _isLoadingStandings = false);
+      return;
+    }
+
+    // Map league name to our supported leagues
+    final leagues = LeaguesListScreen.leagues;
+    Map<String, dynamic>? matchedLeague;
+    final lowerName = leagueName.toLowerCase();
+    for (final l in leagues) {
+      final ln = (l['name'] as String).toLowerCase();
+      if (ln == lowerName || lowerName.contains(ln) || ln.contains(lowerName)) {
+        matchedLeague = l;
+        break;
+      }
+    }
+
+    if (matchedLeague == null) {
+      if (mounted) setState(() => _isLoadingStandings = false);
+      return;
+    }
+
+    try {
+      final standings = await _apiService.fetchStandings(
+        leagueId: matchedLeague['id'] as String,
+        leagueCode: matchedLeague['code'] as String,
+      );
+      if (mounted) {
+        setState(() {
+          _standings = standings;
+          _standingsLeagueName = matchedLeague!['name'] as String;
+          _isLoadingStandings = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching standings for team: $e');
+      if (mounted) setState(() => _isLoadingStandings = false);
     }
   }
 
@@ -265,8 +331,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               unselectedLabelColor: Colors.grey,
               labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               tabs: const [
-                Tab(text: 'OSTATNIE MECZE'),
+                Tab(text: 'OSTATNIE'),
                 Tab(text: 'TERMINARZ'),
+                Tab(text: 'TABELA'),
               ],
             ),
           ),
@@ -278,6 +345,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               children: [
                 _buildLastMatchesTab(),
                 _buildUpcomingMatchesTab(),
+                _buildStandingsTab(),
               ],
             ),
           ),
@@ -627,6 +695,150 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStandingsTab() {
+    if (_isLoadingStandings) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_standings.isEmpty) {
+      return _buildEmptyState('Brak danych o tabeli ligowej.');
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // League name header
+        if (_standingsLeagueName != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Text(
+              _standingsLeagueName!,
+              style: TextStyle(
+                color: Colors.blueAccent.withValues(alpha: 0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        // Column headers
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: Color(0xFF1E1E24), width: 1)),
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 28, child: Text('#', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+              const SizedBox(width: 8),
+              const Expanded(child: Text('Drużyna', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold))),
+              _headerCell('M'),
+              _headerCell('W'),
+              _headerCell('R'),
+              _headerCell('P'),
+              _headerCell('Br'),
+              _headerCell('Pkt'),
+            ],
+          ),
+        ),
+        // Table rows
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 24),
+            itemCount: _standings.length,
+            itemBuilder: (context, index) {
+              final row = _standings[index];
+              final teamName = row['teamName'] as String;
+              final teamLogo = row['teamLogo'] as String;
+              final isCurrentTeam = teamName.toLowerCase().contains(widget.teamName.toLowerCase()) ||
+                  widget.teamName.toLowerCase().contains(teamName.toLowerCase());
+
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isCurrentTeam ? Colors.blueAccent.withValues(alpha: 0.1) : Colors.transparent,
+                  border: Border(
+                    left: isCurrentTeam
+                        ? const BorderSide(color: Colors.blueAccent, width: 3)
+                        : BorderSide.none,
+                    bottom: const BorderSide(color: Color(0xFF16161A), width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 28,
+                      child: Text(
+                        '${row['rank']}',
+                        style: TextStyle(
+                          color: isCurrentTeam ? Colors.blueAccent : Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CachedNetworkImage(
+                      imageUrl: teamLogo,
+                      width: 18,
+                      height: 18,
+                      errorWidget: (context, url, error) => const Icon(Icons.sports_soccer, size: 18, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        teamName,
+                        style: TextStyle(
+                          color: isCurrentTeam ? Colors.white : Colors.white70,
+                          fontSize: 12,
+                          fontWeight: isCurrentTeam ? FontWeight.bold : FontWeight.normal,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _dataCell('${row['played']}', isCurrentTeam),
+                    _dataCell('${row['won']}', isCurrentTeam),
+                    _dataCell('${row['draw']}', isCurrentTeam),
+                    _dataCell('${row['lost']}', isCurrentTeam),
+                    _dataCell('${row['goalsFor']}:${row['goalsAgainst']}', isCurrentTeam, width: 36),
+                    _dataCell('${row['points']}', isCurrentTeam, bold: true, color: isCurrentTeam ? Colors.blueAccent : Colors.white),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _headerCell(String label) {
+    return SizedBox(
+      width: 28,
+      child: Text(
+        label,
+        style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _dataCell(String value, bool highlight, {bool bold = false, Color? color, double width = 28}) {
+    return SizedBox(
+      width: width,
+      child: Text(
+        value,
+        style: TextStyle(
+          color: color ?? (highlight ? Colors.white : Colors.white54),
+          fontSize: 11,
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

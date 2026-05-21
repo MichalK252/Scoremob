@@ -453,26 +453,201 @@ class FootballApiService {
     }
   }
 
+  // ──────────────────────────────────────────────────────────────────
+  // Football-Data.org  – supported competition codes (free tier)
+  // ──────────────────────────────────────────────────────────────────
+  static const List<String> _fdCompetitionCodes = [
+    'PL', 'BL1', 'SA', 'PD', 'FL1', 'CL', 'ELC',
+  ];
+
+  /// Cache:  teamName (lower) → Football-Data.org team ID
+  final Map<String, int?> _fdTeamIdCache = {};
+
+  /// Resolve Football-Data.org team ID by scanning competition rosters.
+  Future<int?> _resolveFdTeamId(String teamName) async {
+    final key = teamName.toLowerCase();
+    if (_fdTeamIdCache.containsKey(key)) return _fdTeamIdCache[key];
+
+    final apiKey = _getFootballDataKey();
+    if (apiKey == null) return null;
+
+    // Search each supported competition for the team
+    for (final code in _fdCompetitionCodes) {
+      try {
+        final url = Uri.parse(
+            'https://api.football-data.org/v4/competitions/$code/teams');
+        final response = await http.get(url, headers: {
+          'X-Auth-Token': apiKey,
+        });
+        if (response.statusCode == 200) {
+          final decoded = json.decode(response.body);
+          final List teams = decoded['teams'] ?? [];
+          for (final t in teams) {
+            final name = (t['name'] ?? '').toString().toLowerCase();
+            final shortName = (t['shortName'] ?? '').toString().toLowerCase();
+            final tla = (t['tla'] ?? '').toString().toLowerCase();
+            if (name == key ||
+                shortName == key ||
+                tla == key ||
+                name.contains(key) ||
+                key.contains(name) ||
+                shortName.contains(key) ||
+                key.contains(shortName)) {
+              final id = t['id'] as int;
+              _fdTeamIdCache[key] = id;
+              return id;
+            }
+          }
+        }
+      } catch (_) {
+        // Continue to next competition
+      }
+    }
+    _fdTeamIdCache[key] = null;
+    return null;
+  }
+
+  /// Fetch team matches from Football-Data.org
+  Future<List<Map<String, dynamic>>> _fetchTeamMatchesFD({
+    required int fdTeamId,
+    required bool upcoming,
+    int limit = 15,
+  }) async {
+    final apiKey = _getFootballDataKey();
+    if (apiKey == null) throw Exception('Brak klucza FOOTBALL_DATA_KEY');
+
+    final status = upcoming ? 'SCHEDULED,TIMED' : 'FINISHED';
+    final url = Uri.parse(
+        'https://api.football-data.org/v4/teams/$fdTeamId/matches?status=$status&limit=$limit');
+    debugLog('Fetching team matches from Football-Data.org: $url');
+
+    final response = await http.get(url, headers: {
+      'X-Auth-Token': apiKey,
+    });
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      final List list = decoded['matches'] ?? [];
+
+      // For past matches – take last N; for upcoming – take first N
+      List matches;
+      if (!upcoming && list.length > limit) {
+        matches = list.sublist(list.length - limit);
+      } else if (upcoming && list.length > limit) {
+        matches = list.sublist(0, limit);
+      } else {
+        matches = list;
+      }
+
+      return matches.map((item) {
+        final homeTeam = item['homeTeam'] ?? {};
+        final awayTeam = item['awayTeam'] ?? {};
+        final score = item['score'] ?? {};
+        final competition = item['competition'] ?? {};
+
+        return <String, dynamic>{
+          'id': item['id'],
+          'homeTeam': homeTeam['name'] ?? 'Nieznany',
+          'homeTeamCrest': homeTeam['crest'] ?? '',
+          'homeTeamId': homeTeam['id'],
+          'awayTeam': awayTeam['name'] ?? 'Nieznany',
+          'awayTeamCrest': awayTeam['crest'] ?? '',
+          'awayTeamId': awayTeam['id'],
+          'scoreHome': score['fullTime']?['home'],
+          'scoreAway': score['fullTime']?['away'],
+          'status': item['status'] ?? 'SCHEDULED',
+          'utcDate': item['utcDate'] ?? '',
+          'league': competition['name'] ?? 'Nieznana liga',
+          'source': 'football-data',
+        };
+      }).toList();
+    } else {
+      throw Exception('FD HTTP ${response.statusCode}');
+    }
+  }
+
+  void debugLog(String msg) {
+    // ignore: avoid_print
+    print(msg);
+  }
+
   Future<List<Map<String, dynamic>>> fetchTeamFixtures({
     required String teamId,
     required bool upcoming,
     int limit = 15,
+    String? teamName,
   }) async {
+    // ── 1. Try Football-Data.org (works on free tier for current season) ──
+    if (teamName != null && teamName.isNotEmpty) {
+      try {
+        final fdId = await _resolveFdTeamId(teamName);
+        if (fdId != null) {
+          final matches = await _fetchTeamMatchesFD(
+            fdTeamId: fdId,
+            upcoming: upcoming,
+            limit: limit,
+          );
+          if (matches.isNotEmpty) return matches;
+        }
+      } catch (e) {
+        debugLog('Football-Data.org fixtures failed: $e');
+      }
+    }
+
+    // ── 2. Fallback: API-Football with season=2024 (free tier limit) ──
     try {
-      final type = upcoming ? 'next' : 'last';
-      final url = Uri.parse('$_baseUrl/fixtures?team=$teamId&$type=$limit');
-      print('Fetching team fixtures ($type): $url');
+      final url = Uri.parse(
+          '$_baseUrl/fixtures?team=$teamId&season=2024');
+      debugLog('Fallback: API-Football fixtures (season=2024): $url');
+
       final response = await http.get(url, headers: _getHeaders());
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         _checkResponseErrors(decoded);
-        final List list = decoded['response'] ?? [];
-        return list.map((item) {
+        final List allFixtures = decoded['response'] ?? [];
+        if (allFixtures.isEmpty) return [];
+
+        // Sort by date
+        allFixtures.sort((a, b) {
+          final dateA = a['fixture']?['date'] ?? '';
+          final dateB = b['fixture']?['date'] ?? '';
+          return dateA.toString().compareTo(dateB.toString());
+        });
+
+        // Split into past / upcoming based on status
+        final now = DateTime.now();
+        List selected;
+        if (upcoming) {
+          selected = allFixtures.where((item) {
+            final dateStr = item['fixture']?['date'] ?? '';
+            if (dateStr.isEmpty) return false;
+            try {
+              return DateTime.parse(dateStr).isAfter(now);
+            } catch (_) {
+              return false;
+            }
+          }).take(limit).toList();
+        } else {
+          final past = allFixtures.where((item) {
+            final dateStr = item['fixture']?['date'] ?? '';
+            if (dateStr.isEmpty) return false;
+            try {
+              return DateTime.parse(dateStr).isBefore(now);
+            } catch (_) {
+              return false;
+            }
+          }).toList();
+          selected = past.length > limit
+              ? past.sublist(past.length - limit)
+              : past;
+        }
+
+        return selected.map((item) {
           final fixture = item['fixture'] ?? {};
           final league = item['league'] ?? {};
           final teams = item['teams'] ?? {};
           final goals = item['goals'] ?? {};
-          return {
+          return <String, dynamic>{
             'id': fixture['id'],
             'homeTeam': teams['home']?['name'] ?? 'Nieznany',
             'homeTeamCrest': teams['home']?['logo'] ?? '',
@@ -485,14 +660,14 @@ class FootballApiService {
             'status': _mapStatus(fixture['status']?['short']),
             'utcDate': fixture['date'] ?? '',
             'league': league['name'] ?? 'Nieznana liga',
+            'source': 'api-football',
           };
         }).toList();
-      } else {
-        throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching team fixtures: $e');
-      return [];
+      debugLog('API-Football fallback fixtures also failed: $e');
     }
+
+    return [];
   }
 }
