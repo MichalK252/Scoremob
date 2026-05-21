@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/football_api.dart';
 import '../services/supabase_service.dart';
 import 'match_detail_screen.dart';
+import 'player_detail_screen.dart';
 import 'leagues_list_screen.dart';
 
 class TeamDetailScreen extends StatefulWidget {
@@ -32,18 +33,20 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
   List<Map<String, dynamic>> _upcomingMatches = [];
   List<Map<String, dynamic>> _standings = [];
   String? _standingsLeagueName;
+  List<Map<String, dynamic>> _squad = [];
   
   bool _isLoadingDetails = true;
   bool _isLoadingLastMatches = true;
   bool _isLoadingUpcomingMatches = true;
   bool _isLoadingStandings = true;
+  bool _isLoadingSquad = true;
   bool _isFavorite = false;
   bool _isDbActionInProgress = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadTeamData();
     _checkFavoriteStatus();
   }
@@ -74,6 +77,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     _fetchLastMatches();
     _fetchUpcomingMatches();
     _fetchStandings();
+    _fetchSquad();
   }
 
   Future<void> _fetchDetails() async {
@@ -199,6 +203,25 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     } catch (e) {
       print('Error fetching standings for team: $e');
       if (mounted) setState(() => _isLoadingStandings = false);
+    }
+  }
+
+  Future<void> _fetchSquad() async {
+    try {
+      final squad = await _apiService.fetchTeamSquad(widget.teamId);
+      if (mounted) {
+        setState(() {
+          _squad = squad;
+          _isLoadingSquad = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching team squad: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingSquad = false;
+        });
+      }
     }
   }
 
@@ -334,6 +357,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                 Tab(text: 'OSTATNIE'),
                 Tab(text: 'TERMINARZ'),
                 Tab(text: 'TABELA'),
+                Tab(text: 'SKŁAD'),
               ],
             ),
           ),
@@ -346,6 +370,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                 _buildLastMatchesTab(),
                 _buildUpcomingMatchesTab(),
                 _buildStandingsTab(),
+                _buildSquadTab(),
               ],
             ),
           ),
@@ -857,5 +882,271 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
         ],
       ),
     );
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Squad Tab
+  // ──────────────────────────────────────────────────────────────────
+  Widget _buildSquadTab() {
+    if (_isLoadingSquad) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_squad.isEmpty) {
+      return _buildEmptyState('Brak danych o składzie.');
+    }
+
+    // Group players by position
+    final positionOrder = ['Goalkeeper', 'Defender', 'Midfielder', 'Attacker'];
+    final positionLabels = {
+      'Goalkeeper': 'Bramkarze',
+      'Defender': 'Obrońcy',
+      'Midfielder': 'Pomocnicy',
+      'Attacker': 'Napastnicy',
+    };
+    final positionColors = {
+      'Goalkeeper': Colors.amber,
+      'Defender': Colors.blueAccent,
+      'Midfielder': Colors.greenAccent,
+      'Attacker': Colors.redAccent,
+    };
+
+    final grouped = <String, List<Map<String, dynamic>>>{};
+    for (final pos in positionOrder) {
+      grouped[pos] = [];
+    }
+    for (final player in _squad) {
+      final pos = player['position'] as String? ?? '';
+      if (grouped.containsKey(pos)) {
+        grouped[pos]!.add(player);
+      } else {
+        grouped.putIfAbsent('Attacker', () => []).add(player);
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        for (final pos in positionOrder)
+          if (grouped[pos] != null && grouped[pos]!.isNotEmpty) ...[
+            // Section header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 3,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: positionColors[pos] ?? Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    positionLabels[pos] ?? pos,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${grouped[pos]!.length}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Player rows
+            ...grouped[pos]!.map((player) => _buildPlayerRow(player, positionColors[pos] ?? Colors.blueAccent)),
+          ],
+      ],
+    );
+  }
+
+  Widget _buildPlayerRow(Map<String, dynamic> player, Color posColor) {
+    final name = player['playerName'] as String? ?? '';
+    final photo = player['photo'] as String? ?? '';
+    final age = player['age'];
+    final number = player['number'] as int?;
+    final position = player['position'] as String? ?? '';
+    final playerId = player['playerId'] as String? ?? '';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF16161A),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PlayerDetailScreen(
+                    playerId: playerId,
+                    playerName: name,
+                    playerPhoto: photo,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  // Player photo
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.white.withValues(alpha: 0.06),
+                    child: ClipOval(
+                      child: photo.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: photo,
+                              width: 36,
+                              height: 36,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const SizedBox(
+                                width: 36,
+                                height: 36,
+                                child: Center(
+                                  child: CircularProgressIndicator(strokeWidth: 1.5),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.person,
+                                size: 20,
+                                color: Colors.grey,
+                              ),
+                            )
+                          : const Icon(Icons.person, size: 20, color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+
+                  // Name + age
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            if (age != null && age != 0) ...[
+                              Text(
+                                '$age lat',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Position tag
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: posColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _translatePositionShort(position),
+                      style: TextStyle(
+                        color: posColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+
+                  // Number badge
+                  if (number != null) ...[
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          width: 1,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '$number',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _translatePositionShort(String position) {
+    switch (position) {
+      case 'Goalkeeper':
+        return 'BR';
+      case 'Defender':
+        return 'OBR';
+      case 'Midfielder':
+        return 'POM';
+      case 'Attacker':
+        return 'NAP';
+      default:
+        return position.length > 3 ? position.substring(0, 3).toUpperCase() : position.toUpperCase();
+    }
   }
 }

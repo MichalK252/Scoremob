@@ -670,4 +670,161 @@ class FootballApiService {
 
     return [];
   }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Player-related endpoints
+  // ──────────────────────────────────────────────────────────────────
+
+  /// Fetch the squad (roster) for a given team.
+  /// Returns a list of players with basic info.
+  Future<List<Map<String, dynamic>>> fetchTeamSquad(String teamId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/players/squads?team=$teamId');
+      debugLog('Fetching team squad: $url');
+
+      final response = await http.get(url, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+
+        final List responseList = decoded['response'] ?? [];
+        if (responseList.isEmpty) return [];
+
+        final List players = responseList[0]['players'] ?? [];
+
+        return players.map((p) {
+          return <String, dynamic>{
+            'playerId': (p['id'] ?? '').toString(),
+            'playerName': p['name'] ?? '',
+            'age': p['age'] ?? 0,
+            'number': p['number'] as int?,
+            'position': p['position'] ?? '',
+            'photo': p['photo'] ?? '',
+          };
+        }).toList();
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching team squad: $e');
+      return [];
+    }
+  }
+
+  /// Fetch detailed player info including bio and per-league statistics.
+  Future<Map<String, dynamic>?> fetchPlayerDetails(String playerId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/players?id=$playerId&season=2024');
+      debugLog('Fetching player details: $url');
+
+      final response = await http.get(url, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+
+        final List responseList = decoded['response'] ?? [];
+        if (responseList.isEmpty) return null;
+
+        final data = responseList[0];
+        final player = data['player'] ?? {};
+        final List statsRaw = data['statistics'] ?? [];
+        final birth = player['birth'] ?? {};
+
+        final statistics = statsRaw.map((s) {
+          final team = s['team'] ?? {};
+          final league = s['league'] ?? {};
+          final games = s['games'] ?? {};
+          final goals = s['goals'] ?? {};
+          final passes = s['passes'] ?? {};
+          final shots = s['shots'] ?? {};
+          final tackles = s['tackles'] ?? {};
+          final dribbles = s['dribbles'] ?? {};
+          final cards = s['cards'] ?? {};
+
+          return <String, dynamic>{
+            'teamName': team['name'] ?? '',
+            'teamLogo': team['logo'] ?? '',
+            'leagueName': league['name'] ?? '',
+            'leagueLogo': league['logo'] ?? '',
+            'position': games['position'] ?? '',
+            'rating': games['rating'] ?? '',
+            'appearances': games['appearences'] ?? 0,
+            'lineups': games['lineups'] ?? 0,
+            'minutes': games['minutes'] ?? 0,
+            'goals': goals['total'] ?? 0,
+            'assists': goals['assists'] ?? 0,
+            'yellowCards': cards['yellow'] ?? 0,
+            'redCards': cards['red'] ?? 0,
+            'shots': shots['total'] ?? 0,
+            'shotsOnTarget': shots['on'] ?? 0,
+            'passAccuracy': passes['accuracy'] ?? '',
+            'keyPasses': passes['key'] ?? 0,
+            'tacklesTotal': tackles['total'] ?? 0,
+            'dribblesSuccess': dribbles['success'] ?? 0,
+            'dribblesAttempts': dribbles['attempts'] ?? 0,
+          };
+        }).toList();
+
+        return {
+          'playerId': (player['id'] ?? '').toString(),
+          'firstName': player['firstname'] ?? '',
+          'lastName': player['lastname'] ?? '',
+          'fullName': player['name'] ?? '',
+          'age': player['age'] ?? 0,
+          'nationality': player['nationality'] ?? '',
+          'height': player['height'] ?? '',
+          'weight': player['weight'] ?? '',
+          'photo': player['photo'] ?? '',
+          'birthDate': birth['date'] ?? '',
+          'birthPlace': birth['place'] ?? '',
+          'birthCountry': birth['country'] ?? '',
+          'statistics': statistics,
+        };
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching player details: $e');
+      return null;
+    }
+  }
+
+  /// Search for players globally by name.
+  /// Uses the /players/profiles endpoint.
+  Future<List<Map<String, dynamic>>> searchPlayers(String query) async {
+    try {
+      final encodedQuery = Uri.encodeComponent(query);
+      final url = Uri.parse('$_baseUrl/players/profiles?search=$encodedQuery');
+      debugLog('Searching players: $url');
+
+      final response = await http.get(url, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+
+        final List responseList = decoded['response'] ?? [];
+        return responseList.map((item) {
+          final p = item['player'] ?? {};
+          return <String, dynamic>{
+            'playerId': (p['id'] ?? '').toString(),
+            'playerName': p['name'] ?? '',
+            'photo': p['photo'] ?? '',
+            'age': p['age'] ?? 0,
+            'position': p['position'] ?? '',
+            'nationality': p['nationality'] ?? '',
+            'number': p['number'],
+          };
+        }).toList();
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error searching players: $e');
+      return [];
+    }
+  }
 }
+

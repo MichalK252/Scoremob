@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/football_api.dart';
 import 'team_detail_screen.dart';
+import 'player_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -16,7 +17,8 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   
   Timer? _debounceTimer;
-  List<Map<String, dynamic>> _searchResults = [];
+  List<Map<String, dynamic>> _teamResults = [];
+  List<Map<String, dynamic>> _playerResults = [];
   bool _isSearching = false;
   String _currentQuery = '';
 
@@ -42,7 +44,8 @@ class _SearchScreenState extends State<SearchScreen> {
         _performSearch(trimmed);
       } else {
         setState(() {
-          _searchResults = [];
+          _teamResults = [];
+          _playerResults = [];
           _isSearching = false;
         });
       }
@@ -55,10 +58,15 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      final results = await _apiService.searchTeams(query);
+      final results = await Future.wait([
+        _apiService.searchTeams(query),
+        _apiService.searchPlayers(query),
+      ]);
+
       if (mounted && query == _currentQuery) {
         setState(() {
-          _searchResults = results;
+          _teamResults = results[0];
+          _playerResults = results[1];
           _isSearching = false;
         });
       }
@@ -82,7 +90,8 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.clear();
     setState(() {
       _currentQuery = '';
-      _searchResults = [];
+      _teamResults = [];
+      _playerResults = [];
       _isSearching = false;
     });
   }
@@ -111,7 +120,7 @@ class _SearchScreenState extends State<SearchScreen> {
             style: const TextStyle(color: Colors.white, fontSize: 14),
             cursorColor: Colors.blueAccent,
             decoration: InputDecoration(
-              hintText: 'Wyszukaj drużynę...',
+              hintText: 'Wyszukaj drużynę lub zawodnika...',
               hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
               prefixIcon: Icon(Icons.search_rounded, color: Colors.grey.shade500, size: 18),
               suffixIcon: _searchController.text.isNotEmpty
@@ -142,144 +151,377 @@ class _SearchScreenState extends State<SearchScreen> {
     if (_currentQuery.isEmpty || _currentQuery.length < 3) {
       return _buildEmptyState(
         icon: Icons.search_rounded,
-        title: 'Szukaj drużyn z całego świata',
-        subtitle: 'Wpisz co najmniej 3 znaki, aby rozpocząć.',
+        title: 'Szukaj w ScoreMob',
+        subtitle: 'Wpisz co najmniej 3 znaki, aby wyszukać drużyny i zawodników.',
       );
     }
 
-    if (_searchResults.isEmpty) {
+    if (_teamResults.isEmpty && _playerResults.isEmpty) {
       return _buildEmptyState(
         icon: Icons.sports_soccer_rounded,
         title: 'Brak wyników',
-        subtitle: 'Nie znaleziono drużyn pasujących do "$_currentQuery".',
+        subtitle: 'Nie znaleziono drużyn ani zawodników pasujących do "$_currentQuery".',
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _searchResults.length,
-      itemBuilder: (context, index) {
-        final team = _searchResults[index];
-        final id = team['teamId'] as String;
-        final name = team['teamName'] as String;
-        final logo = team['teamLogo'] as String;
-        final country = team['country'] as String;
-        final founded = team['founded'] as String;
-        final venueName = team['venueName'] as String;
-        final venueCity = team['venueCity'] as String;
+    return ListView(
+      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        if (_teamResults.isNotEmpty) ...[
+          _buildSectionHeader('DRUŻYNY', Colors.blueAccent, _teamResults.length),
+          ..._teamResults.map((team) => _buildTeamCard(team)),
+        ],
+        if (_playerResults.isNotEmpty) ...[
+          _buildSectionHeader('ZAWODNICY', Colors.greenAccent, _playerResults.length),
+          ..._playerResults.map((player) => _buildPlayerCard(player)),
+        ],
+      ],
+    );
+  }
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+  Widget _buildSectionHeader(String title, Color color, int count) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 3,
+            height: 16,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TeamDetailScreen(
-                        teamId: id,
-                        teamName: name,
-                        teamLogo: logo,
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.5),
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamCard(Map<String, dynamic> team) {
+    final id = team['teamId'] as String;
+    final name = team['teamName'] as String;
+    final logo = team['teamLogo'] as String;
+    final country = team['country'] as String;
+    final founded = team['founded'] as String;
+    final venueName = team['venueName'] as String;
+    final venueCity = team['venueCity'] as String;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF16161A),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeamDetailScreen(
+                    teamId: id,
+                    teamName: name,
+                    teamLogo: logo,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.03),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: logo,
+                      width: 38,
+                      height: 38,
+                      placeholder: (context, url) => const SizedBox(
+                        width: 38,
+                        height: 38,
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(
+                        Icons.sports_soccer_rounded,
+                        size: 38,
+                        color: Colors.grey,
                       ),
                     ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Row(
-                    children: [
-                      // Team logo container
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.03),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
-                        ),
-                        child: CachedNetworkImage(
-                          imageUrl: logo,
-                          width: 38,
-                          height: 38,
-                          placeholder: (context, url) => const SizedBox(
-                            width: 38,
-                            height: 38,
-                            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                          ),
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.sports_soccer_rounded,
-                            size: 38,
-                            color: Colors.grey,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Details Column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        const SizedBox(height: 4),
+                        Row(
                           children: [
-                            Text(
-                              name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                if (country.isNotEmpty) ...[
-                                  Text(
-                                    country,
-                                    style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text('|', style: TextStyle(color: Colors.grey.shade700, fontSize: 11)),
-                                  const SizedBox(width: 6),
-                                ],
-                                if (founded != 'Brak danych' && founded.isNotEmpty) ...[
-                                  Text(
-                                    'rok zał. $founded',
-                                    style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            if (venueName != 'Brak danych' && venueName.isNotEmpty) ...[
-                              const SizedBox(height: 4),
+                            if (country.isNotEmpty) ...[
                               Text(
-                                'Stadion: $venueName ($venueCity)',
-                                style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                country,
+                                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                              ),
+                              const SizedBox(width: 6),
+                              Text('|', style: TextStyle(color: Colors.grey.shade700, fontSize: 11)),
+                              const SizedBox(width: 6),
+                            ],
+                            if (founded != 'Brak danych' && founded.isNotEmpty) ...[
+                              Text(
+                                'rok zał. $founded',
+                                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                               ),
                             ],
                           ],
                         ),
-                      ),
-                      // Go Icon
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: Colors.white.withValues(alpha: 0.25),
-                        size: 14,
-                      ),
-                    ],
+                        if (venueName != 'Brak danych' && venueName.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Stadion: $venueName ($venueCity)',
+                            style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white.withValues(alpha: 0.25),
+                    size: 14,
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayerCard(Map<String, dynamic> player) {
+    final playerId = player['playerId'] as String? ?? '';
+    final playerName = player['playerName'] as String? ?? '';
+    final photo = player['photo'] as String? ?? '';
+    final number = player['number'];
+    final position = player['position'] as String? ?? '';
+    final age = player['age'];
+    final nationality = player['nationality'] as String? ?? '';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF16161A),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (playerId.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlayerDetailScreen(
+                      playerId: playerId,
+                      playerName: playerName,
+                      playerPhoto: photo,
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: photo.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: photo,
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: Colors.white.withValues(alpha: 0.03),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 20,
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.white.withValues(alpha: 0.03),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 20,
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              color: Colors.white.withValues(alpha: 0.03),
+                              child: Icon(
+                                Icons.person,
+                                size: 20,
+                                color: Colors.white.withValues(alpha: 0.15),
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          playerName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            Text(
+                              _translatePosition(position),
+                              style: TextStyle(
+                                color: _positionColor(position),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (age != null && age != 0) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                '·',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '$age lat',
+                                style: TextStyle(
+                                  color: Colors.grey.shade400,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                            if (nationality.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                '·',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                nationality,
+                                style: TextStyle(
+                                  color: Colors.grey.shade400,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                            if (number != null) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                '·',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '#$number',
+                                style: TextStyle(
+                                  color: Colors.grey.shade400,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white.withValues(alpha: 0.25),
+                    size: 14,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -321,5 +563,35 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     );
+  }
+
+  String _translatePosition(String position) {
+    switch (position.toLowerCase()) {
+      case 'goalkeeper':
+        return 'Bramkarz';
+      case 'defender':
+        return 'Obrońca';
+      case 'midfielder':
+        return 'Pomocnik';
+      case 'attacker':
+        return 'Napastnik';
+      default:
+        return position;
+    }
+  }
+
+  Color _positionColor(String position) {
+    switch (position.toLowerCase()) {
+      case 'goalkeeper':
+        return Colors.amber;
+      case 'defender':
+        return Colors.greenAccent;
+      case 'midfielder':
+        return Colors.blueAccent;
+      case 'attacker':
+        return Colors.redAccent;
+      default:
+        return Colors.grey;
+    }
   }
 }
