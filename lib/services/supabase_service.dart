@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
+  static final StreamController<void> favoritesRefreshController = StreamController<void>.broadcast();
+  static Stream<void> get favoritesRefreshStream => favoritesRefreshController.stream;
+
   final SupabaseClient _client = Supabase.instance.client;
 
   String? get _currentUserId => _client.auth.currentUser?.id;
@@ -69,6 +73,7 @@ class SupabaseService {
           'league_code': league['code'],
         });
       }
+      favoritesRefreshController.add(null);
     } catch (e) {
       print('Error toggling favorite league: $e');
       throw Exception('Błąd zapisu w bazie Supabase.');
@@ -138,6 +143,7 @@ class SupabaseService {
           'team_logo': team['logo'],
         });
       }
+      favoritesRefreshController.add(null);
     } catch (e) {
       print('Error toggling favorite team: $e');
       throw Exception('Błąd zapisu w bazie Supabase.');

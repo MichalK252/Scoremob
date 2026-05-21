@@ -19,6 +19,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   final SupabaseService _dbService = SupabaseService();
   User? _currentUser;
   late final StreamSubscription<AuthState> _authSubscription;
+  StreamSubscription<void>? _favoritesSubscription;
   late TabController _tabController;
 
   List<Map<String, dynamic>> _favoriteLeagues = [];
@@ -42,6 +43,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       }
     });
 
+    _favoritesSubscription = SupabaseService.favoritesRefreshStream.listen((_) {
+      if (mounted && _currentUser != null) {
+        _loadFavorites();
+      }
+    });
+
     if (_currentUser != null) {
       _loadFavorites();
     }
@@ -50,6 +57,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   @override
   void dispose() {
     _authSubscription.cancel();
+    _favoritesSubscription?.cancel();
     _tabController.dispose();
     super.dispose();
   }
@@ -88,7 +96,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         'name': team['team_name'],
         'logo': team['team_logo'],
       });
-      _loadFavorites();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

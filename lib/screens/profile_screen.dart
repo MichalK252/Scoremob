@@ -14,6 +14,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   User? _currentUser;
   late final StreamSubscription<AuthState> _authSubscription;
+  StreamSubscription<void>? _favoritesSubscription;
   bool _isLoading = false;
   final SupabaseService _dbService = SupabaseService();
   int _favLeaguesCount = 0;
@@ -31,6 +32,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_currentUser != null) {
           _loadStats();
         }
+      }
+    });
+    _favoritesSubscription = SupabaseService.favoritesRefreshStream.listen((_) {
+      if (mounted && _currentUser != null) {
+        _loadStats();
       }
     });
     if (_currentUser != null) {
@@ -54,6 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _authSubscription.cancel();
+    _favoritesSubscription?.cancel();
     super.dispose();
   }
 
