@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../theme/app_theme.dart';
 import 'league_standings_screen.dart';
 
 class LeaguesListScreen extends StatelessWidget {
@@ -81,17 +82,17 @@ class LeaguesListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Tabele ligowe',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
-            color: Colors.white,
+            color: context.textColor,
           ),
         ),
       ),
@@ -105,7 +106,7 @@ class LeaguesListScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: const Color(0xFF24242A),
+                color: context.border,
                 width: 1,
               ),
               gradient: LinearGradient(
@@ -118,7 +119,7 @@ class LeaguesListScreen extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: context.isDarkMode ? 0.3 : 0.08),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

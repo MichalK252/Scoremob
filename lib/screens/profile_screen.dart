@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_service.dart';
+import '../services/theme_provider.dart';
+import '../theme/app_theme.dart';
 import 'auth_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -128,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       body: user == null ? _buildGuestView() : _buildUserView(user),
     );
   }
@@ -140,14 +143,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SliverAppBar(
           expandedHeight: 180.0,
           pinned: true,
-          backgroundColor: const Color(0xFF0E0E10),
+          backgroundColor: context.headerBg,
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFF0F1E36),
-                    Color(0xFF0C0C0E),
+                    context.isDarkMode ? const Color(0xFF0F1E36) : const Color(0xFFE3EEFF),
+                    context.scaffoldBg,
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -182,12 +185,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Title & Subtitle
-                const Text(
+                Text(
                   'Konto ScoreMob',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white,
+                    color: context.textColor,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -197,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: context.textSecondary,
                     height: 1.5,
                   ),
                 ),
@@ -211,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () => _navigateToAuth(isRegister: false),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.black,
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
@@ -228,8 +231,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: OutlinedButton(
                     onPressed: () => _navigateToAuth(isRegister: true),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                      foregroundColor: context.textColor,
+                      side: BorderSide(color: context.border),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
@@ -354,7 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: Container(
-                            color: const Color(0xFF0C0C0E).withValues(alpha: 0.78),
+                            color: context.scaffoldBg.withValues(alpha: 0.78),
                             child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -422,14 +425,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SliverAppBar(
           expandedHeight: 180.0,
           pinned: true,
-          backgroundColor: const Color(0xFF0E0E10),
+          backgroundColor: context.headerBg,
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFF0F2618), // Deep Forest/Sports Green
-                    Color(0xFF0C0C0E),
+                    context.isDarkMode ? const Color(0xFF0F2618) : const Color(0xFFE2F0E6),
+                    context.scaffoldBg,
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -475,8 +478,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // Email
                       Text(
                         email,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.textColor,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -486,14 +489,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.greenAccent.withOpacity(0.12),
+                          color: (context.isDarkMode ? Colors.greenAccent : Colors.green).withOpacity(0.12),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.greenAccent.withOpacity(0.2), width: 1),
+                          border: Border.all(color: (context.isDarkMode ? Colors.greenAccent : Colors.green).withOpacity(0.2), width: 1),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Konto Aktywne',
                           style: TextStyle(
-                            color: Colors.greenAccent,
+                            color: context.isDarkMode ? Colors.greenAccent : Colors.green[800],
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -540,19 +543,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Account Information Card
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF16161A),
+                    color: context.cardBg,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+                    border: Border.all(color: context.border, width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
                         child: Text(
                           'Dane użytkownika',
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: context.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -560,16 +563,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       ListTile(
                         leading: const Icon(Icons.mail_outline_rounded, color: Colors.grey, size: 20),
-                        title: const Text('Adres e-mail', style: TextStyle(color: Colors.white, fontSize: 13)),
+                        title: Text('Adres e-mail', style: TextStyle(color: context.textColor, fontSize: 13)),
                         trailing: Text(
                           email,
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ),
-                      const Divider(color: Color(0xFF24242A), height: 1, indent: 50),
+                      Divider(color: context.border, height: 1, indent: 50),
                       ListTile(
                         leading: const Icon(Icons.calendar_today_rounded, color: Colors.grey, size: 20),
-                        title: const Text('Data rejestracji', style: TextStyle(color: Colors.white, fontSize: 13)),
+                        title: Text('Data rejestracji', style: TextStyle(color: context.textColor, fontSize: 13)),
                         trailing: Text(
                           _formatDateTime(user.createdAt),
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
@@ -583,46 +586,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Options List Card
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF16161A),
+                    color: context.cardBg,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+                    border: Border.all(color: context.border, width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
                         child: Text(
                           'Ustawienia aplikacji',
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: context.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      ListTile(
-                        leading: const Icon(Icons.notifications_none_rounded, color: Colors.grey, size: 20),
-                        title: const Text('Ustawienia powiadomień', style: TextStyle(color: Colors.white, fontSize: 13)),
-                        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
-                        onTap: () {},
-                      ),
-                      const Divider(color: Color(0xFF24242A), height: 1, indent: 50),
-                      ListTile(
-                        leading: const Icon(Icons.dark_mode_outlined, color: Colors.grey, size: 20),
-                        title: const Text('Ciemny motyw', style: TextStyle(color: Colors.white, fontSize: 13)),
-                        trailing: Switch(
-                          value: true,
-                          onChanged: (bool value) {},
-                          activeColor: Colors.blueAccent,
-                        ),
-                      ),
-                      const Divider(color: Color(0xFF24242A), height: 1, indent: 50),
-                      ListTile(
-                        leading: const Icon(Icons.help_outline_rounded, color: Colors.grey, size: 20),
-                        title: const Text('Pomoc i regulamin', style: TextStyle(color: Colors.white, fontSize: 13)),
-                        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
-                        onTap: () {},
+                      Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, _) {
+                          return ListTile(
+                            leading: const Icon(Icons.dark_mode_outlined, color: Colors.grey, size: 20),
+                            title: Text('Ciemny motyw', style: TextStyle(color: context.textColor, fontSize: 13)),
+                            trailing: Switch(
+                              value: themeProvider.isDarkMode,
+                              onChanged: (bool value) {
+                                themeProvider.toggleTheme(value);
+                              },
+                              activeColor: Colors.blueAccent,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -671,9 +666,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161A),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+        border: Border.all(color: context.border, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,8 +678,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 value,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.textColor,
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
                 ),
@@ -696,7 +691,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             title,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.4),
+              color: context.textTertiary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),

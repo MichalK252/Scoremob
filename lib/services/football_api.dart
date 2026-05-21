@@ -826,5 +826,61 @@ class FootballApiService {
       return [];
     }
   }
+
+  /// Fetch league top scorers for a given season.
+  Future<List<Map<String, dynamic>>> fetchTopScorers(String leagueId, int season) async {
+    try {
+      final url = Uri.parse('$_baseUrl/players/topscorers?league=$leagueId&season=$season');
+      debugLog('Fetching top scorers: $url');
+
+      final response = await http.get(url, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+
+        final List responseList = decoded['response'] ?? [];
+        return List<Map<String, dynamic>>.from(responseList);
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching top scorers: $e');
+      final errStr = e.toString().toLowerCase();
+      if ((errStr.contains('plan') || errStr.contains('free plans do not have access to this season')) && season > 2024) {
+        print('Ograniczenie planu dla sezonu $season. Próba automatycznego pobrania dla sezonu 2024...');
+        return fetchTopScorers(leagueId, 2024);
+      }
+      rethrow;
+    }
+  }
+
+  /// Fetch league top assists for a given season.
+  Future<List<Map<String, dynamic>>> fetchTopAssists(String leagueId, int season) async {
+    try {
+      final url = Uri.parse('$_baseUrl/players/topassists?league=$leagueId&season=$season');
+      debugLog('Fetching top assists: $url');
+
+      final response = await http.get(url, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        _checkResponseErrors(decoded);
+
+        final List responseList = decoded['response'] ?? [];
+        return List<Map<String, dynamic>>.from(responseList);
+      } else {
+        throw Exception('Błąd HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching top assists: $e');
+      final errStr = e.toString().toLowerCase();
+      if ((errStr.contains('plan') || errStr.contains('free plans do not have access to this season')) && season > 2024) {
+        print('Ograniczenie planu dla sezonu $season. Próba automatycznego pobrania dla sezonu 2024...');
+        return fetchTopAssists(leagueId, 2024);
+      }
+      rethrow;
+    }
+  }
 }
 

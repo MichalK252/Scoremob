@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../theme/app_theme.dart';
 
 class AuthScreen extends StatefulWidget {
   final bool initialIsRegister;
@@ -91,24 +92,24 @@ class _AuthScreenState extends State<AuthScreen> {
               context: context,
               barrierDismissible: false,
               builder: (context) => AlertDialog(
-                backgroundColor: const Color(0xFF16161A),
+                backgroundColor: context.cardBg,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFF24242A), width: 1),
+                  side: BorderSide(color: context.border, width: 1),
                 ),
-                title: const Row(
+                title: Row(
                   children: [
-                    Icon(Icons.mark_email_read_rounded, color: Colors.blueAccent),
-                    SizedBox(width: 10),
+                    const Icon(Icons.mark_email_read_rounded, color: Colors.blueAccent),
+                    const SizedBox(width: 10),
                     Text(
                       'Potwierdź e-mail',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                      style: TextStyle(color: context.textColor, fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                   ],
                 ),
-                content: const Text(
+                content: Text(
                   'Wysłaliśmy link aktywacyjny na Twój adres e-mail. Sprawdź skrzynkę i kliknij w link, aby aktywować konto i móc się zalogować.',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                  style: TextStyle(color: context.textSecondary, fontSize: 13),
                 ),
                 actions: [
                   TextButton(
@@ -153,12 +154,12 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, size: 18, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -198,10 +199,10 @@ class _AuthScreenState extends State<AuthScreen> {
               // Title
               Text(
                 _isRegister ? 'Utwórz konto' : 'Witaj z powrotem',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: context.textColor,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -213,7 +214,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.white.withOpacity(0.5),
+                  color: context.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -224,9 +225,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 height: 48,
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16161A),
+                  color: context.cardBg,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+                  border: Border.all(color: context.border, width: 1),
                 ),
                 child: Row(
                   children: [
@@ -251,7 +252,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Text(
                               'Logowanie',
                               style: TextStyle(
-                                color: !_isRegister ? Colors.black : Colors.white70,
+                                color: !_isRegister ? Colors.black : context.textSecondary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -281,7 +282,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: Text(
                               'Rejestracja',
                               style: TextStyle(
-                                color: _isRegister ? Colors.black : Colors.white70,
+                                color: _isRegister ? Colors.black : context.textSecondary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -299,9 +300,9 @@ class _AuthScreenState extends State<AuthScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16161A),
+                  color: context.cardBg,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+                  border: Border.all(color: context.border, width: 1),
                 ),
                 child: Form(
                   key: _formKey,
@@ -337,19 +338,19 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style: TextStyle(color: context.textColor, fontSize: 14),
                         decoration: InputDecoration(
                           labelText: 'Adres E-mail',
-                          labelStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                          labelStyle: TextStyle(color: context.textSecondary, fontSize: 12),
                           hintText: 'user@example.com',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 12),
-                          prefixIcon: const Icon(Icons.email_rounded, color: Colors.grey, size: 20),
+                          hintStyle: TextStyle(color: context.textTertiary, fontSize: 12),
+                          prefixIcon: Icon(Icons.email_rounded, color: context.textSecondary, size: 20),
                           filled: true,
-                          fillColor: const Color(0xFF0E0E10),
+                          fillColor: context.scaffoldBg,
                           contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                            borderSide: BorderSide(color: context.border),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -381,15 +382,15 @@ class _AuthScreenState extends State<AuthScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style: TextStyle(color: context.textColor, fontSize: 14),
                         decoration: InputDecoration(
                           labelText: 'Hasło',
-                          labelStyle: const TextStyle(color: Colors.grey, fontSize: 12),
-                          prefixIcon: const Icon(Icons.lock_rounded, color: Colors.grey, size: 20),
+                          labelStyle: TextStyle(color: context.textSecondary, fontSize: 12),
+                          prefixIcon: Icon(Icons.lock_rounded, color: context.textSecondary, size: 20),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              color: Colors.grey,
+                              color: context.textSecondary,
                               size: 20,
                             ),
                             onPressed: () {
@@ -399,11 +400,11 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           filled: true,
-                          fillColor: const Color(0xFF0E0E10),
+                          fillColor: context.scaffoldBg,
                           contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                            borderSide: BorderSide(color: context.border),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -435,15 +436,15 @@ class _AuthScreenState extends State<AuthScreen> {
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: TextStyle(color: context.textColor, fontSize: 14),
                           decoration: InputDecoration(
                             labelText: 'Potwierdź hasło',
-                            labelStyle: const TextStyle(color: Colors.grey, fontSize: 12),
-                            prefixIcon: const Icon(Icons.lock_reset_rounded, color: Colors.grey, size: 20),
+                            labelStyle: TextStyle(color: context.textSecondary, fontSize: 12),
+                            prefixIcon: Icon(Icons.lock_reset_rounded, color: context.textSecondary, size: 20),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscureConfirmPassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                                color: Colors.grey,
+                                color: context.textSecondary,
                                 size: 20,
                               ),
                               onPressed: () {
@@ -453,11 +454,11 @@ class _AuthScreenState extends State<AuthScreen> {
                               },
                             ),
                             filled: true,
-                            fillColor: const Color(0xFF0E0E10),
+                            fillColor: context.scaffoldBg,
                             contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                              borderSide: BorderSide(color: context.border),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),

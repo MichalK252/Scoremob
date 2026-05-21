@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/football_api.dart';
+import '../theme/app_theme.dart';
 import 'team_detail_screen.dart';
 import 'player_detail_screen.dart';
 
@@ -99,34 +100,34 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textColor, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Container(
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
+            border: Border.all(color: context.border, width: 1),
           ),
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+            style: TextStyle(color: context.textColor, fontSize: 14),
             cursorColor: Colors.blueAccent,
             decoration: InputDecoration(
               hintText: 'Wyszukaj drużynę lub zawodnika...',
-              hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-              prefixIcon: Icon(Icons.search_rounded, color: Colors.grey.shade500, size: 18),
+              hintStyle: TextStyle(color: context.textSecondary, fontSize: 13),
+              prefixIcon: Icon(Icons.search_rounded, color: context.textSecondary, size: 18),
               suffixIcon: _searchController.text.isNotEmpty
                   ? GestureDetector(
                       onTap: _clearSearch,
-                      child: Icon(Icons.clear_rounded, color: Colors.grey.shade500, size: 18),
+                      child: Icon(Icons.clear_rounded, color: context.textSecondary, size: 18),
                     )
                   : null,
               border: InputBorder.none,
@@ -196,8 +197,8 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(width: 10),
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.textColor,
               fontSize: 14,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.3,
@@ -207,13 +208,13 @@ class _SearchScreenState extends State<SearchScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.06),
+              color: context.border,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               '$count',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.5),
+                color: context.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
               ),
@@ -236,9 +237,9 @@ class _SearchScreenState extends State<SearchScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161A),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+        border: Border.all(color: context.border, width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -264,9 +265,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.03),
+                      color: context.scaffoldBg,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
+                      border: Border.all(color: context.border, width: 1),
                     ),
                     child: CachedNetworkImage(
                       imageUrl: logo,
@@ -291,8 +292,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: context.textColor,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -303,16 +304,16 @@ class _SearchScreenState extends State<SearchScreen> {
                             if (country.isNotEmpty) ...[
                               Text(
                                 country,
-                                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                                style: TextStyle(color: context.textSecondary, fontSize: 11),
                               ),
                               const SizedBox(width: 6),
-                              Text('|', style: TextStyle(color: Colors.grey.shade700, fontSize: 11)),
+                              Text('|', style: TextStyle(color: context.border, fontSize: 11)),
                               const SizedBox(width: 6),
                             ],
                             if (founded != 'Brak danych' && founded.isNotEmpty) ...[
                               Text(
                                 'rok zał. $founded',
-                                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                                style: TextStyle(color: context.textSecondary, fontSize: 11),
                               ),
                             ],
                           ],
@@ -320,8 +321,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         if (venueName != 'Brak danych' && venueName.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            'Stadion: $venueName ($venueCity)',
-                            style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
+                             'Stadion: $venueName ($venueCity)',
+                            style: TextStyle(color: context.textTertiary, fontSize: 10),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -331,7 +332,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   Icon(
                     Icons.arrow_forward_ios_rounded,
-                    color: Colors.white.withValues(alpha: 0.25),
+                    color: context.textTertiary,
                     size: 14,
                   ),
                 ],
@@ -355,9 +356,9 @@ class _SearchScreenState extends State<SearchScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161A),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+        border: Border.all(color: context.border, width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
@@ -388,7 +389,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: context.border,
                         width: 1.5,
                       ),
                     ),
@@ -400,28 +401,28 @@ class _SearchScreenState extends State<SearchScreen> {
                               height: 44,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
-                                color: Colors.white.withValues(alpha: 0.03),
+                                color: context.scaffoldBg,
                                 child: Icon(
                                   Icons.person,
                                   size: 20,
-                                  color: Colors.white.withValues(alpha: 0.15),
+                                  color: context.textTertiary,
                                 ),
                               ),
                               errorWidget: (context, url, error) => Container(
-                                color: Colors.white.withValues(alpha: 0.03),
+                                color: context.scaffoldBg,
                                 child: Icon(
                                   Icons.person,
                                   size: 20,
-                                  color: Colors.white.withValues(alpha: 0.15),
+                                  color: context.textTertiary,
                                 ),
                               ),
                             )
                           : Container(
-                              color: Colors.white.withValues(alpha: 0.03),
+                              color: context.scaffoldBg,
                               child: Icon(
                                 Icons.person,
                                 size: 20,
-                                color: Colors.white.withValues(alpha: 0.15),
+                                color: context.textTertiary,
                               ),
                             ),
                     ),
@@ -433,8 +434,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         Text(
                           playerName,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: context.textColor,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -457,7 +458,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 '·',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.25),
+                                  color: context.border,
                                   fontSize: 11,
                                 ),
                               ),
@@ -465,7 +466,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 '$age lat',
                                 style: TextStyle(
-                                  color: Colors.grey.shade400,
+                                  color: context.textSecondary,
                                   fontSize: 11,
                                 ),
                               ),
@@ -475,7 +476,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 '·',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.25),
+                                  color: context.border,
                                   fontSize: 11,
                                 ),
                               ),
@@ -483,7 +484,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 nationality,
                                 style: TextStyle(
-                                  color: Colors.grey.shade400,
+                                  color: context.textSecondary,
                                   fontSize: 11,
                                 ),
                               ),
@@ -493,7 +494,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 '·',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.25),
+                                  color: context.border,
                                   fontSize: 11,
                                 ),
                               ),
@@ -501,7 +502,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 '#$number',
                                 style: TextStyle(
-                                  color: Colors.grey.shade400,
+                                  color: context.textSecondary,
                                   fontSize: 11,
                                 ),
                               ),
@@ -513,7 +514,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   Icon(
                     Icons.arrow_forward_ios_rounded,
-                    color: Colors.white.withValues(alpha: 0.25),
+                    color: context.textTertiary,
                     size: 14,
                   ),
                 ],
@@ -539,13 +540,13 @@ class _SearchScreenState extends State<SearchScreen> {
             Icon(
               icon,
               size: 48,
-              color: Colors.white.withValues(alpha: 0.08),
+              color: context.textTertiary,
             ),
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: context.textSecondary,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
@@ -555,7 +556,7 @@ class _SearchScreenState extends State<SearchScreen> {
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
+                color: context.textQuaternary,
                 fontSize: 12,
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui'; // Wymagane dla ImageFilter (glassmorphism)
+import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'leagues_list_screen.dart';
 import 'favorites_screen.dart';
@@ -46,7 +47,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withOpacity(context.isDarkMode ? 0.4 : 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -59,9 +60,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  color: const Color(0xFF16161A).withOpacity(0.75),
+                  color: context.cardBg.withOpacity(0.75),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.08),
+                    color: context.border.withOpacity(0.3),
                     width: 1,
                   ),
                 ),
@@ -147,7 +148,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? Colors.white : Colors.grey.shade500,
+                  color: isSelected ? context.textColor : Colors.grey.shade500,
                   letterSpacing: 0.2,
                 ),
                 child: Text(label),

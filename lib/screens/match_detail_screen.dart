@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../services/football_api.dart';
+import '../theme/app_theme.dart';
 
 class MatchDetailScreen extends StatefulWidget {
   final Map<String, dynamic> match;
@@ -127,21 +128,21 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
     final hasScore = scoreHome != null && scoreAway != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         elevation: 0,
         title: Text(
           match['league'] ?? 'Szczegóły meczu',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: Colors.white70,
+            color: context.textSecondary,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, size: 18, color: context.textColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -177,12 +178,12 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
               
               // 2. Tab Bar
               Container(
-                color: const Color(0xFF0E0E10),
+                color: context.headerBg,
                 child: TabBar(
                   controller: _tabController,
                   indicatorColor: Colors.blue.shade500,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.grey.shade500,
+                  labelColor: context.textColor,
+                  unselectedLabelColor: context.textSecondary,
                   labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   tabs: const [
                     Tab(text: 'SZCZEGÓŁY'),
@@ -226,7 +227,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-      color: const Color(0xFF0E0E10),
+      color: context.headerBg,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -240,10 +241,10 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 Text(
                   match['homeTeam'] ?? 'Gospodarze',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: context.textColor,
                   ),
                 ),
               ],
@@ -260,7 +261,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
-                      color: isLive ? Colors.green.shade400 : Colors.white,
+                      color: isLive ? Colors.green.shade400 : context.textColor,
                       letterSpacing: 2,
                     ),
                   ),
@@ -279,13 +280,17 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                   padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                   decoration: BoxDecoration(
                     color: isLive 
-                        ? Colors.green.shade900.withOpacity(0.4) 
-                        : (isFinished ? Colors.grey.shade900 : Colors.blue.shade900.withOpacity(0.3)),
+                        ? (context.isDarkMode ? Colors.green.shade900.withOpacity(0.4) : Colors.green.shade50) 
+                        : (isFinished 
+                            ? (context.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100) 
+                            : (context.isDarkMode ? Colors.blue.shade900.withOpacity(0.3) : Colors.blue.shade50)),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isLive 
-                          ? Colors.green.shade700 
-                          : (isFinished ? Colors.grey.shade800 : Colors.blue.shade700.withOpacity(0.5)),
+                          ? (context.isDarkMode ? Colors.green.shade700 : Colors.green.shade300) 
+                          : (isFinished 
+                              ? (context.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300) 
+                              : (context.isDarkMode ? Colors.blue.shade700.withOpacity(0.5) : Colors.blue.shade200)),
                       width: 1,
                     ),
                   ),
@@ -295,8 +300,10 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                       color: isLive 
-                          ? Colors.green.shade300 
-                          : (isFinished ? Colors.grey.shade400 : Colors.blue.shade300),
+                          ? (context.isDarkMode ? Colors.green.shade300 : Colors.green.shade700) 
+                          : (isFinished 
+                              ? (context.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600) 
+                              : (context.isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700)),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -313,10 +320,10 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 Text(
                   match['awayTeam'] ?? 'Goście',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: context.textColor,
                   ),
                 ),
               ],
@@ -339,24 +346,24 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF24242A), width: 1),
+            border: Border.all(color: context.border, width: 1),
           ),
           child: Column(
             children: [
-              _buildInfoRow(Icons.calendar_month, 'Czas rozpoczęcia', _formatDateTime(match['utcDate'] ?? '')),
-              const Divider(height: 24, thickness: 1, color: Color(0xFF24242A)),
-              _buildInfoRow(Icons.stadium, 'Stadion / Obiekt', match['venue'] ?? 'Brak danych'),
-              const Divider(height: 24, thickness: 1, color: Color(0xFF24242A)),
-              _buildInfoRow(Icons.person, 'Sędzia główny', match['referee'] ?? 'Brak danych'),
+              _buildInfoRow(context, Icons.calendar_month, 'Czas rozpoczęcia', _formatDateTime(match['utcDate'] ?? '')),
+              Divider(height: 24, thickness: 1, color: context.border),
+              _buildInfoRow(context, Icons.stadium, 'Stadion / Obiekt', match['venue'] ?? 'Brak danych'),
+              Divider(height: 24, thickness: 1, color: context.border),
+              _buildInfoRow(context, Icons.person, 'Sędzia główny', match['referee'] ?? 'Brak danych'),
               if (match['round'] != null && match['round'].toString().isNotEmpty) ...[
-                const Divider(height: 24, thickness: 1, color: Color(0xFF24242A)),
-                _buildInfoRow(Icons.emoji_events, 'Runda', match['round'].toString()),
+                Divider(height: 24, thickness: 1, color: context.border),
+                _buildInfoRow(context, Icons.emoji_events, 'Runda', match['round'].toString()),
               ],
               if (hasHalfTime) ...[
-                const Divider(height: 24, thickness: 1, color: Color(0xFF24242A)),
-                _buildInfoRow(Icons.timelapse, 'Do przerwy', '$halfTimeHome - $halfTimeAway'),
+                Divider(height: 24, thickness: 1, color: context.border),
+                _buildInfoRow(context, Icons.timelapse, 'Do przerwy', '$halfTimeHome - $halfTimeAway'),
               ],
             ],
           ),
@@ -365,12 +372,12 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         const SizedBox(height: 24),
         
         // Zdarzenia (Timeline)
-        const Text(
+        Text(
           'Przebieg meczu',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: context.textColor,
           ),
         ),
         const SizedBox(height: 12),
@@ -378,14 +385,14 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
           Container(
             padding: const EdgeInsets.symmetric(vertical: 24),
             decoration: BoxDecoration(
-              color: const Color(0xFF16161A),
+              color: context.cardBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF24242A), width: 1),
+              border: Border.all(color: context.border, width: 1),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'Brak zdarzeń dla tego meczu',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: context.textSecondary),
               ),
             ),
           )
@@ -393,19 +400,19 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
             decoration: BoxDecoration(
-              color: const Color(0xFF16161A),
+              color: context.cardBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF24242A), width: 1),
+              border: Border.all(color: context.border, width: 1),
             ),
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               padding: EdgeInsets.zero,
               itemCount: events.length,
-              separatorBuilder: (context, index) => const Divider(
+              separatorBuilder: (context, index) => Divider(
                 height: 16,
                 thickness: 0.5,
-                color: Color(0xFF24242A),
+                color: context.border,
               ),
               itemBuilder: (context, index) {
                 final event = events[index];
@@ -417,7 +424,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
     return Row(
       children: [
         Icon(icon, color: Colors.blue.shade400, size: 18),
@@ -428,12 +435,12 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 10, color: context.textSecondary, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 13, color: context.textColor, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -506,7 +513,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             Expanded(
               child: Text(
                 eventText,
-                style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w500),
               ),
             ),
           ] else ...[
@@ -514,7 +521,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
               child: Text(
                 eventText,
                 textAlign: TextAlign.right,
-                style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(width: 12),
@@ -537,23 +544,23 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
   Widget _buildLineupsTab(List<dynamic> lineups) {
     final isFallback = widget.match['source'] == 'football-data';
     if (isFallback) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24.0),
           child: Text(
             'Składy zespołów są niedostępne w planie zapasowym aplikacji (Football-Data.org).',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 13),
+            style: TextStyle(color: context.textSecondary, fontSize: 13),
           ),
         ),
       );
     }
 
     if (lineups.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Składy będą dostępne przed meczem',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: context.textSecondary),
         ),
       );
     }
@@ -580,9 +587,9 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF24242A), width: 1),
+            border: Border.all(color: context.border, width: 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -591,29 +598,29 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Formacja', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                    Text('Formacja', style: TextStyle(fontSize: 10, color: context.textSecondary)),
                     const SizedBox(height: 2),
-                    Text(homeFormation.toString(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text(homeFormation.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor)),
                     const SizedBox(height: 8),
-                    const Text('Trener', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                    Text('Trener', style: TextStyle(fontSize: 10, color: context.textSecondary)),
                     const SizedBox(height: 2),
-                    Text(homeCoach.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white70)),
+                    Text(homeCoach.toString(), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: context.textSecondary)),
                   ],
                 ),
               ),
-              Container(width: 1, height: 60, color: const Color(0xFF24242A)),
+              Container(width: 1, height: 60, color: context.border),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Formacja', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                    Text('Formacja', style: TextStyle(fontSize: 10, color: context.textSecondary)),
                     const SizedBox(height: 2),
-                    Text(awayFormation.toString(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text(awayFormation.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor)),
                     const SizedBox(height: 8),
-                    const Text('Trener', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                    Text('Trener', style: TextStyle(fontSize: 10, color: context.textSecondary)),
                     const SizedBox(height: 2),
-                    Text(awayCoach.toString(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white70)),
+                    Text(awayCoach.toString(), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: context.textSecondary)),
                   ],
                 ),
               ),
@@ -624,13 +631,13 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         const SizedBox(height: 20),
         
         // Nagłówek Składów wyjściowych
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Skład wyjściowy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
-              Text('Skład wyjściowy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text('Skład wyjściowy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor)),
+              Text('Skład wyjściowy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor)),
             ],
           ),
         ),
@@ -639,16 +646,16 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         // Tabela wyjściowych XI side-by-side
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF24242A), width: 1),
+            border: Border.all(color: context.border, width: 1),
           ),
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             padding: EdgeInsets.zero,
             itemCount: homeXI.length > awayXI.length ? homeXI.length : awayXI.length,
-            separatorBuilder: (context, index) => const Divider(height: 1, thickness: 0.5, color: Color(0xFF24242A)),
+            separatorBuilder: (context, index) => Divider(height: 1, thickness: 0.5, color: context.border),
             itemBuilder: (context, index) {
               final homePlayer = index < homeXI.length ? homeXI[index]['player'] : null;
               final awayPlayer = index < awayXI.length ? awayXI[index]['player'] : null;
@@ -674,7 +681,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                 Expanded(
                                   child: Text(
                                     homePlayer['name'] ?? '',
-                                    style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w500),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -694,7 +701,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                   child: Text(
                                     awayPlayer['name'] ?? '',
                                     textAlign: TextAlign.right,
-                                    style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w500),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -705,7 +712,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                   child: Text(
                                     awayPlayer['number']?.toString() ?? '',
                                     textAlign: TextAlign.right,
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.textSecondary),
                                   ),
                                 ),
                               ],
@@ -722,13 +729,13 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         const SizedBox(height: 20),
 
         // Nagłówek Rezerwowych
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Rezerwowi', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
-              Text('Rezerwowi', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text('Rezerwowi', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor)),
+              Text('Rezerwowi', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor)),
             ],
           ),
         ),
@@ -737,16 +744,16 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         // Tabela rezerwowych side-by-side
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF24242A), width: 1),
+            border: Border.all(color: context.border, width: 1),
           ),
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             padding: EdgeInsets.zero,
             itemCount: homeSubs.length > awaySubs.length ? homeSubs.length : awaySubs.length,
-            separatorBuilder: (context, index) => const Divider(height: 1, thickness: 0.5, color: Color(0xFF24242A)),
+            separatorBuilder: (context, index) => Divider(height: 1, thickness: 0.5, color: context.border),
             itemBuilder: (context, index) {
               final homePlayer = index < homeSubs.length ? homeSubs[index]['player'] : null;
               final awayPlayer = index < awaySubs.length ? awaySubs[index]['player'] : null;
@@ -772,7 +779,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                 Expanded(
                                   child: Text(
                                     homePlayer['name'] ?? '',
-                                    style: const TextStyle(fontSize: 12, color: Colors.white54, fontWeight: FontWeight.w400),
+                                    style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w400),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -792,7 +799,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                   child: Text(
                                     awayPlayer['name'] ?? '',
                                     textAlign: TextAlign.right,
-                                    style: const TextStyle(fontSize: 12, color: Colors.white54, fontWeight: FontWeight.w400),
+                                    style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w400),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -803,7 +810,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                   child: Text(
                                     awayPlayer['number']?.toString() ?? '',
                                     textAlign: TextAlign.right,
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade500),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.textTertiary),
                                   ),
                                 ),
                               ],
@@ -823,23 +830,23 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
   Widget _buildStatisticsTab(List<dynamic> statistics) {
     final isFallback = widget.match['source'] == 'football-data';
     if (isFallback) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24.0),
           child: Text(
             'Statystyki meczowe są niedostępne w planie zapasowym aplikacji (Football-Data.org).',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 13),
+            style: TextStyle(color: context.textSecondary, fontSize: 13),
           ),
         ),
       );
     }
 
     if (statistics.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Statystyki będą dostępne w trakcie meczu',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: context.textSecondary),
         ),
       );
     }
@@ -900,10 +907,10 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
     }
 
     if (children.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Brak statystyk dla tego meczu',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: context.textSecondary),
         ),
       );
     }
@@ -934,15 +941,15 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             children: [
               Text(
                 homeStr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor),
               ),
               Text(
                 statName,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade400, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w500),
               ),
               Text(
                 awayStr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textColor),
               ),
             ],
           ),
@@ -951,7 +958,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             borderRadius: BorderRadius.circular(4),
             child: Container(
               height: 8,
-              color: const Color(0xFF24242A),
+              color: context.border,
               child: Row(
                 children: [
                   Expanded(
@@ -960,7 +967,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                   ),
                   Expanded(
                     flex: ((1 - homeRatio) * 100).toInt(),
-                    child: Container(color: Colors.grey.shade700),
+                    child: Container(color: context.isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300),
                   ),
                 ],
               ),

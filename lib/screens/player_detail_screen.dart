@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/football_api.dart';
+import '../theme/app_theme.dart';
 
 class PlayerDetailScreen extends StatefulWidget {
   final String playerId;
@@ -52,19 +53,19 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: context.textColor, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.playerName,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.textColor,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -86,12 +87,12 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.person_off_rounded,
-              size: 48, color: Colors.white.withValues(alpha: 0.12)),
+              size: 48, color: context.textSecondary),
           const SizedBox(height: 16),
           Text(
             'Brak danych o zawodniku',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
+              color: context.textTertiary,
               fontSize: 14,
             ),
           ),
@@ -166,10 +167,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Statystyki sezonu',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textColor,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.3,
@@ -199,10 +200,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0E0E10),
+        color: context.headerBg,
         border: Border(
           bottom: BorderSide(
-              color: Colors.white.withValues(alpha: 0.04), width: 1),
+              color: context.border, width: 1),
         ),
       ),
       child: Column(
@@ -225,7 +226,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
             ),
             child: CircleAvatar(
               radius: 45,
-              backgroundColor: const Color(0xFF16161A),
+              backgroundColor: context.cardBg,
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: photo,
@@ -236,10 +237,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                     child:
                         CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  errorWidget: (context, url, error) => const Icon(
+                  errorWidget: (context, url, error) => Icon(
                     Icons.person,
                     size: 40,
-                    color: Colors.grey,
+                    color: context.textSecondary,
                   ),
                 ),
               ),
@@ -251,8 +252,8 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           Text(
             fullName,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.textColor,
               fontSize: 22,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
@@ -266,12 +267,12 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.flag_outlined,
-                    size: 14, color: Colors.grey.shade400),
+                    size: 14, color: context.textSecondary),
                 const SizedBox(width: 5),
                 Text(
                   nationality,
                   style: TextStyle(
-                    color: Colors.grey.shade400,
+                    color: context.textSecondary,
                     fontSize: 13,
                   ),
                 ),
@@ -347,10 +348,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: const Color(0xFF16161A),
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.04),
+            color: context.border,
             width: 1,
           ),
         ),
@@ -362,10 +363,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                 Icon(Icons.info_outline_rounded,
                     size: 16, color: Colors.blueAccent.withValues(alpha: 0.7)),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'Informacje',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textColor,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -399,7 +400,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
             Text(
               label,
               style: TextStyle(
-                color: Colors.grey.shade500,
+                color: context.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.3,
@@ -408,8 +409,8 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
             const SizedBox(height: 4),
             Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.textColor,
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
@@ -458,10 +459,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF16161A),
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.04),
+            color: context.border,
             width: 1,
           ),
         ),
@@ -475,7 +476,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.04),
+                    color: context.border,
                     width: 1,
                   ),
                 ),
@@ -487,17 +488,17 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                       imageUrl: leagueLogo,
                       width: 22,
                       height: 22,
-                      errorWidget: (context, url, error) => const Icon(
+                      errorWidget: (context, url, error) => Icon(
                           Icons.emoji_events_outlined,
                           size: 22,
-                          color: Colors.grey),
+                          color: context.textTertiary),
                     ),
                   if (leagueLogo.isNotEmpty) const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       leagueName,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.textColor,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
@@ -521,14 +522,14 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                         width: 18,
                         height: 18,
                         errorWidget: (context, url, error) =>
-                            const Icon(Icons.sports_soccer,
-                                size: 18, color: Colors.grey),
+                            Icon(Icons.sports_soccer,
+                                size: 18, color: context.textTertiary),
                       ),
                     if (teamLogo.isNotEmpty) const SizedBox(width: 8),
                     Text(
                       teamName,
                       style: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: context.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -636,10 +637,10 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: context.scaffoldBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: context.border,
           width: 1,
         ),
       ),
@@ -650,13 +651,13 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           Icon(
             icon,
             size: 16,
-            color: iconColor ?? Colors.white.withValues(alpha: 0.35),
+            color: iconColor ?? context.textTertiary,
           ),
           const SizedBox(height: 5),
           Text(
             value,
             style: TextStyle(
-              color: valueColor ?? Colors.white,
+              color: valueColor ?? context.textColor,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -667,7 +668,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           Text(
             label,
             style: TextStyle(
-              color: Colors.grey.shade500,
+              color: context.textSecondary,
               fontSize: 9,
               fontWeight: FontWeight.w500,
             ),

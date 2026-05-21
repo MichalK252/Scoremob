@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../services/football_api.dart';
+import '../theme/app_theme.dart';
 import 'match_detail_screen.dart';
 import 'search_screen.dart';
 
@@ -172,25 +173,25 @@ class _HomeScreenState extends State<HomeScreen> {
             colorScheme: ColorScheme.dark(
               primary: Colors.blue.shade600,
               onPrimary: Colors.white,
-              surface: const Color(0xFF16161A),
-              onSurface: Colors.white,
+              surface: context.cardBg,
+              onSurface: context.textColor,
             ),
             datePickerTheme: DatePickerThemeData(
-              backgroundColor: const Color(0xFF16161A),
-              headerBackgroundColor: const Color(0xFF0E0E10),
-              headerForegroundColor: Colors.white,
+              backgroundColor: context.cardBg,
+              headerBackgroundColor: context.headerBg,
+              headerForegroundColor: context.textColor,
               dayForegroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
                   return Colors.white;
                 }
-                return Colors.grey.shade300;
+                return context.textColor.withOpacity(0.8);
               }),
               todayForegroundColor: WidgetStateProperty.all(Colors.blue.shade400),
               todayBorder: BorderSide(color: Colors.blue.shade400, width: 1.5),
-              dividerColor: const Color(0xFF24242A),
+              dividerColor: context.border,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: const BorderSide(color: Color(0xFF24242A), width: 1),
+                side: BorderSide(color: context.border, width: 1),
               ),
             ),
           ),
@@ -240,19 +241,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Scoremob',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -0.5,
-                color: Colors.white,
+                color: context.textColor,
               ),
             ),
             const SizedBox(height: 2),
@@ -260,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _formatFullDate(_selectedDate),
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.grey.shade400,
+                color: context.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -298,10 +299,10 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             decoration: BoxDecoration(
-              color: const Color(0xFF0E0E10),
+              color: context.headerBg,
               border: Border(
                 bottom: BorderSide(
-                  color: Colors.grey.shade900,
+                  color: context.border,
                   width: 1,
                 ),
               ),
@@ -348,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                               color: isSelected
                                   ? Colors.white
-                                  : (isToday ? Colors.blue.shade400 : Colors.grey.shade400),
+                                  : (isToday ? Colors.blue.shade400 : context.textSecondary),
                             ),
                           ),
                           const SizedBox(height: 3),
@@ -357,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : Colors.white70,
+                              color: isSelected ? Colors.white : context.textColor.withOpacity(0.85),
                             ),
                           ),
                           if (isToday && !isSelected) ...[
@@ -429,10 +430,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF16161A),
+                        color: context.cardBg,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: const Color(0xFF24242A),
+                          color: context.border,
                           width: 1,
                         ),
                       ),
@@ -455,30 +456,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: Text(
                                     _formatLeagueName(league),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: context.textColor,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const Divider(
+                          Divider(
                             height: 1,
                             thickness: 1,
-                            color: Color(0xFF24242A),
+                            color: context.border,
                           ),
                           ListView.separated(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             padding: EdgeInsets.zero,
                             itemCount: leagueMatches.length,
-                            separatorBuilder: (context, index) => const Divider(
+                            separatorBuilder: (context, index) => Divider(
                               height: 1,
                               thickness: 0.8,
-                              color: Color(0xFF24242A),
+                              color: context.border,
                             ),
                             itemBuilder: (context, matchIndex) {
                               final match = leagueMatches[matchIndex];
@@ -596,7 +597,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             height: 24,
             width: 1,
-            color: const Color(0xFF24242A),
+            color: context.border,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -613,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: isHomeWinner ? FontWeight.bold : FontWeight.w500,
-                          color: isHomeWinner ? Colors.white : Colors.white.withOpacity(0.85),
+                          color: isHomeWinner ? context.textColor : context.textColor.withOpacity(0.85),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -632,7 +633,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: isAwayWinner ? FontWeight.bold : FontWeight.w500,
-                          color: isAwayWinner ? Colors.white : Colors.white.withOpacity(0.85),
+                          color: isAwayWinner ? context.textColor : context.textColor.withOpacity(0.85),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -653,7 +654,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: hasScore
-                      ? (isLive ? Colors.green.shade400 : (isHomeWinner ? Colors.white : Colors.white70))
+                      ? (isLive ? Colors.green.shade400 : (isHomeWinner ? context.textColor : context.textColor.withOpacity(0.7)))
                       : Colors.grey.shade600,
                 ),
               ),
@@ -664,7 +665,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: hasScore
-                      ? (isLive ? Colors.green.shade400 : (isAwayWinner ? Colors.white : Colors.white70))
+                      ? (isLive ? Colors.green.shade400 : (isAwayWinner ? context.textColor : context.textColor.withOpacity(0.7)))
                       : Colors.grey.shade600,
                 ),
               ),

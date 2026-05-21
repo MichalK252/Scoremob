@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/supabase_service.dart';
+import '../theme/app_theme.dart';
 import 'leagues_list_screen.dart';
 import 'league_standings_screen.dart';
 import 'auth_screen.dart';
@@ -130,17 +131,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     final user = _currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Ulubione',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
-            color: Colors.white,
+            color: context.textColor,
           ),
         ),
         bottom: user != null
@@ -149,7 +150,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 indicatorColor: Colors.blueAccent,
                 indicatorWeight: 3,
                 labelColor: Colors.blueAccent,
-                unselectedLabelColor: Colors.grey,
+                unselectedLabelColor: context.textSecondary,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 tabs: const [
                   Tab(text: 'Ligi'),
@@ -161,7 +162,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       body: RefreshIndicator(
         onRefresh: _loadFavorites,
         color: Colors.blueAccent,
-        backgroundColor: const Color(0xFF16161A),
+        backgroundColor: context.cardBg,
         child: user == null ? _buildGuestView() : _buildUserView(),
       ),
     );
@@ -208,7 +209,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 'Zaloguj się, aby zapisywać ulubione drużyny i ligi.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 13,
                   height: 1.5,
                 ),
@@ -295,7 +296,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF24242A), width: 1),
+            border: Border.all(color: context.border, width: 1),
             gradient: LinearGradient(
               colors: [leagueColor1, leagueColor2],
               begin: Alignment.topLeft,
@@ -396,9 +397,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
 
         return Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF16161A),
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+            border: Border.all(color: context.border, width: 1),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -458,8 +459,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.textColor,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -492,12 +493,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 48, color: Colors.white.withOpacity(0.15)),
+              Icon(icon, size: 48, color: context.textTertiary),
               const SizedBox(height: 16),
               Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: context.textSecondary,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -507,7 +508,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 subtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.3),
+                  color: context.textQuaternary,
                   fontSize: 12,
                   height: 1.4,
                 ),

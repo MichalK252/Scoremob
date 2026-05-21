@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/football_api.dart';
 import '../services/supabase_service.dart';
+import '../theme/app_theme.dart';
 import 'match_detail_screen.dart';
 import 'player_detail_screen.dart';
 import 'leagues_list_screen.dart';
@@ -311,18 +312,18 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     final themeAccentColor = Colors.blueAccent;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0C0E),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E0E10),
+        backgroundColor: context.headerBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textColor, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.teamName,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.textColor,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -331,7 +332,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
           IconButton(
             icon: Icon(
               _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              color: _isFavorite ? Colors.redAccent : Colors.white70,
+              color: _isFavorite ? Colors.redAccent : context.textSecondary,
               size: 22,
             ),
             onPressed: _toggleFavorite,
@@ -345,13 +346,13 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
           
           // Tab bar
           Container(
-            color: const Color(0xFF0E0E10),
+            color: context.headerBg,
             child: TabBar(
               controller: _tabController,
               indicatorColor: themeAccentColor,
               indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey,
+              labelColor: context.textColor,
+              unselectedLabelColor: context.textSecondary,
               labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               tabs: const [
                 Tab(text: 'OSTATNIE'),
@@ -390,10 +391,10 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0E0E10),
+      decoration: BoxDecoration(
+        color: context.headerBg,
         border: Border(
-          bottom: BorderSide(color: Color(0xFF1E1E24), width: 1),
+          bottom: BorderSide(color: context.border, width: 1),
         ),
       ),
       child: Column(
@@ -414,7 +415,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     gradient: LinearGradient(
                       colors: [
                         Colors.black.withValues(alpha: 0.1),
-                        const Color(0xFF0E0E10),
+                        context.headerBg,
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -431,9 +432,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.04),
+                    color: context.scaffoldBg,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 1),
+                    border: Border.all(color: context.border, width: 1),
                   ),
                   child: CachedNetworkImage(
                     imageUrl: widget.teamLogo,
@@ -444,10 +445,10 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                       height: 60,
                       child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                     ),
-                    errorWidget: (context, url, error) => const Icon(
+                    errorWidget: (context, url, error) => Icon(
                       Icons.sports_soccer,
                       size: 60,
-                      color: Colors.grey,
+                      color: context.textSecondary,
                     ),
                   ),
                 ),
@@ -458,8 +459,8 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.textColor,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           letterSpacing: -0.5,
@@ -476,24 +477,24 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                         Row(
                           children: [
                             if (country.isNotEmpty) ...[
-                              Icon(Icons.flag_outlined, size: 13, color: Colors.grey.shade400),
+                              Icon(Icons.flag_outlined, size: 13, color: context.textSecondary),
                               const SizedBox(width: 4),
                               Text(
                                 country,
-                                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                                style: TextStyle(color: context.textSecondary, fontSize: 12),
                               ),
                             ],
                             if (founded.isNotEmpty && founded != 'Brak danych') ...[
                               if (country.isNotEmpty) ...[
                                 const SizedBox(width: 12),
-                                Text('|', style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                                Text('|', style: TextStyle(color: context.border, fontSize: 12)),
                                 const SizedBox(width: 12),
                               ],
-                              Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey.shade400),
+                              Icon(Icons.calendar_today_outlined, size: 12, color: context.textSecondary),
                               const SizedBox(width: 4),
                               Text(
                                 'Założono: $founded',
-                                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                                style: TextStyle(color: context.textSecondary, fontSize: 12),
                               ),
                             ],
                           ],
@@ -502,12 +503,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Icon(Icons.stadium_outlined, size: 13, color: Colors.grey.shade500),
+                              Icon(Icons.stadium_outlined, size: 13, color: context.textSecondary),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   '$venueName, $venueCity${venueCapacity != 'Brak danych' ? ' (pojemność: $venueCapacity)' : ''}',
-                                  style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                                  style: TextStyle(color: context.textSecondary, fontSize: 11),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -578,9 +579,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161A),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+        border: Border.all(color: context.border, width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -619,7 +620,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                         '$dateStr o $timeStr',
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey.shade500,
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
@@ -637,7 +638,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                                 homeTeam,
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: context.textColor,
                                   fontSize: 13,
                                   fontWeight: isHomeThisTeam ? FontWeight.bold : FontWeight.normal,
                                 ),
@@ -650,7 +651,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                               imageUrl: homeCrest,
                               width: 22,
                               height: 22,
-                              errorWidget: (context, url, error) => const Icon(Icons.sports_soccer, size: 22, color: Colors.grey),
+                              errorWidget: (context, url, error) => Icon(Icons.sports_soccer, size: 22, color: context.textSecondary),
                             ),
                           ],
                         ),
@@ -663,8 +664,8 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                         child: status == 'FINISHED'
                             ? Text(
                                 '$scoreHome : $scoreAway',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.textColor,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 14,
                                 ),
@@ -695,14 +696,14 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                               imageUrl: awayCrest,
                               width: 22,
                               height: 22,
-                              errorWidget: (context, url, error) => const Icon(Icons.sports_soccer, size: 22, color: Colors.grey),
+                              errorWidget: (context, url, error) => Icon(Icons.sports_soccer, size: 22, color: context.textSecondary),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 awayTeam,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: context.textColor,
                                   fontSize: 13,
                                   fontWeight: !isHomeThisTeam ? FontWeight.bold : FontWeight.normal,
                                 ),
@@ -752,14 +753,14 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
         // Column headers
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Color(0xFF1E1E24), width: 1)),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: context.border, width: 1)),
           ),
           child: Row(
             children: [
-              const SizedBox(width: 28, child: Text('#', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+              SizedBox(width: 28, child: Text('#', style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
               const SizedBox(width: 8),
-              const Expanded(child: Text('Drużyna', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold))),
+              Expanded(child: Text('Drużyna', style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold))),
               _headerCell('M'),
               _headerCell('W'),
               _headerCell('R'),
@@ -789,7 +790,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     left: isCurrentTeam
                         ? const BorderSide(color: Colors.blueAccent, width: 3)
                         : BorderSide.none,
-                    bottom: const BorderSide(color: Color(0xFF16161A), width: 1),
+                    bottom: BorderSide(color: context.border, width: 1),
                   ),
                 ),
                 child: Row(
@@ -799,7 +800,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                       child: Text(
                         '${row['rank']}',
                         style: TextStyle(
-                          color: isCurrentTeam ? Colors.blueAccent : Colors.white70,
+                          color: isCurrentTeam ? Colors.blueAccent : context.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -811,14 +812,14 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                       imageUrl: teamLogo,
                       width: 18,
                       height: 18,
-                      errorWidget: (context, url, error) => const Icon(Icons.sports_soccer, size: 18, color: Colors.grey),
+                      errorWidget: (context, url, error) => Icon(Icons.sports_soccer, size: 18, color: context.textSecondary),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         teamName,
                         style: TextStyle(
-                          color: isCurrentTeam ? Colors.white : Colors.white70,
+                          color: isCurrentTeam ? context.textColor : context.textSecondary,
                           fontSize: 12,
                           fontWeight: isCurrentTeam ? FontWeight.bold : FontWeight.normal,
                         ),
@@ -831,7 +832,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     _dataCell('${row['draw']}', isCurrentTeam),
                     _dataCell('${row['lost']}', isCurrentTeam),
                     _dataCell('${row['goalsFor']}:${row['goalsAgainst']}', isCurrentTeam, width: 36),
-                    _dataCell('${row['points']}', isCurrentTeam, bold: true, color: isCurrentTeam ? Colors.blueAccent : Colors.white),
+                    _dataCell('${row['points']}', isCurrentTeam, bold: true, color: isCurrentTeam ? Colors.blueAccent : context.textColor),
                   ],
                 ),
               );
@@ -847,7 +848,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       width: 28,
       child: Text(
         label,
-        style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+        style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
     );
@@ -859,7 +860,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       child: Text(
         value,
         style: TextStyle(
-          color: color ?? (highlight ? Colors.white : Colors.white54),
+          color: color ?? (highlight ? context.textColor : context.textSecondary),
           fontSize: 11,
           fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         ),
@@ -873,11 +874,11 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.sports_soccer, size: 40, color: Colors.white.withValues(alpha: 0.12)),
+          Icon(Icons.sports_soccer, size: 40, color: context.textSecondary),
           const SizedBox(height: 12),
           Text(
             msg,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
+            style: TextStyle(color: context.textSecondary, fontSize: 13),
           ),
         ],
       ),
@@ -945,8 +946,8 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   const SizedBox(width: 10),
                   Text(
                     positionLabels[pos] ?? pos,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.textColor,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.3,
@@ -956,13 +957,13 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: context.scaffoldBg,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '${grouped[pos]!.length}',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: context.textSecondary,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -989,9 +990,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161A),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04), width: 1),
+        border: Border.all(color: context.border, width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
@@ -1017,7 +1018,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   // Player photo
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: Colors.white.withValues(alpha: 0.06),
+                    backgroundColor: context.scaffoldBg,
                     child: ClipOval(
                       child: photo.isNotEmpty
                           ? CachedNetworkImage(
@@ -1026,19 +1027,19 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                               height: 36,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => const SizedBox(
-                                width: 36,
-                                height: 36,
-                                child: Center(
-                                  child: CircularProgressIndicator(strokeWidth: 1.5),
+                                  width: 36,
+                                  height: 36,
+                                  child: Center(
+                                    child: CircularProgressIndicator(strokeWidth: 1.5),
+                                  ),
                                 ),
-                              ),
-                              errorWidget: (context, url, error) => const Icon(
+                              errorWidget: (context, url, error) => Icon(
                                 Icons.person,
                                 size: 20,
-                                color: Colors.grey,
+                                color: context.textSecondary,
                               ),
                             )
-                          : const Icon(Icons.person, size: 20, color: Colors.grey),
+                          : Icon(Icons.person, size: 20, color: context.textSecondary),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -1050,8 +1051,8 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: context.textColor,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1065,7 +1066,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                               Text(
                                 '$age lat',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.4),
+                                  color: context.textSecondary,
                                   fontSize: 11,
                                 ),
                               ),
@@ -1101,18 +1102,18 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.06),
+                        color: context.scaffoldBg,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
+                          color: context.border,
                           width: 1,
                         ),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '$number',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.textColor,
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
                         ),
@@ -1124,7 +1125,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   Icon(
                     Icons.chevron_right_rounded,
                     size: 18,
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: context.textSecondary,
                   ),
                 ],
               ),
