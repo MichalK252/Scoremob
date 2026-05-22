@@ -35,7 +35,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
   List<Map<String, dynamic>> _standings = [];
   String? _standingsLeagueName;
   List<Map<String, dynamic>> _squad = [];
-  
+
   bool _isLoadingDetails = true;
   bool _isLoadingLastMatches = true;
   bool _isLoadingUpcomingMatches = true;
@@ -148,15 +148,13 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     }
   }
 
-  /// Detect the team's league from match data and fetch standings
   Future<void> _fetchStandings() async {
-    // Wait for matches to load so we can detect the league
+
     for (int i = 0; i < 20; i++) {
       if (!_isLoadingLastMatches && !_isLoadingUpcomingMatches) break;
       await Future.delayed(const Duration(milliseconds: 300));
     }
 
-    // Try to detect league from loaded matches
     String? leagueName;
     final allMatches = [..._lastMatches, ..._upcomingMatches];
     for (final m in allMatches) {
@@ -172,7 +170,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       return;
     }
 
-    // Map league name to our supported leagues
     final leagues = LeaguesListScreen.leagues;
     Map<String, dynamic>? matchedLeague;
     final lowerName = leagueName.toLowerCase();
@@ -253,7 +250,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       };
       await _dbService.toggleFavoriteTeam(payload);
       final isFav = await _dbService.isTeamFavorite(widget.teamId);
-      
+
       if (mounted) {
         setState(() {
           _isFavorite = isFav;
@@ -341,10 +338,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       ),
       body: Column(
         children: [
-          // Dynamic Header
+
           _buildTeamHeader(),
-          
-          // Tab bar
+
           Container(
             color: context.headerBg,
             child: TabBar(
@@ -362,8 +358,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               ],
             ),
           ),
-          
-          // Tab view body
+
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -628,7 +623,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   const SizedBox(height: 14),
                   Row(
                     children: [
-                      // Home Team
+
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -656,8 +651,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                           ],
                         ),
                       ),
-                      
-                      // Score/Time middle box
+
                       Container(
                         width: 60,
                         alignment: Alignment.center,
@@ -686,8 +680,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                                 ),
                               ),
                       ),
-                      
-                      // Away Team
+
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -736,7 +729,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // League name header
+
         if (_standingsLeagueName != null)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -750,7 +743,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               ),
             ),
           ),
-        // Column headers
+
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -770,7 +763,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
             ],
           ),
         ),
-        // Table rows
+
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.only(bottom: 24),
@@ -885,9 +878,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     );
   }
 
-  // ──────────────────────────────────────────────────────────────────
-  // Squad Tab
-  // ──────────────────────────────────────────────────────────────────
   Widget _buildSquadTab() {
     if (_isLoadingSquad) {
       return const Center(child: CircularProgressIndicator());
@@ -896,7 +886,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       return _buildEmptyState('Brak danych o składzie.');
     }
 
-    // Group players by position
     final positionOrder = ['Goalkeeper', 'Defender', 'Midfielder', 'Attacker'];
     final positionLabels = {
       'Goalkeeper': 'Bramkarze',
@@ -930,7 +919,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
       children: [
         for (final pos in positionOrder)
           if (grouped[pos] != null && grouped[pos]!.isNotEmpty) ...[
-            // Section header
+
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
@@ -972,7 +961,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                 ],
               ),
             ),
-            // Player rows
+
             ...grouped[pos]!.map((player) => _buildPlayerRow(player, positionColors[pos] ?? Colors.blueAccent)),
           ],
       ],
@@ -1015,7 +1004,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
                 children: [
-                  // Player photo
+
                   CircleAvatar(
                     radius: 18,
                     backgroundColor: context.scaffoldBg,
@@ -1044,7 +1033,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   ),
                   const SizedBox(width: 14),
 
-                  // Name + age
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1077,7 +1065,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     ),
                   ),
 
-                  // Position tag
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -1095,7 +1082,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     ),
                   ),
 
-                  // Number badge
                   if (number != null) ...[
                     const SizedBox(width: 10),
                     Container(

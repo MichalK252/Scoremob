@@ -66,7 +66,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       if (_isRegister) {
-        // Sign Up
+
         final response = await Supabase.instance.client.auth.signUp(
           email: email,
           password: password,
@@ -76,9 +76,9 @@ class _AuthScreenState extends State<AuthScreen> {
           setState(() {
             _isLoading = false;
           });
-          
+
           if (response.session != null) {
-            // E-mail confirmation jest wyłączone - zalogowano od razu!
+
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -87,7 +87,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             );
           } else {
-            // E-mail confirmation jest włączone - wymagane potwierdzenie
+
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -114,8 +114,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Zamknij dialog
-                      Navigator.of(context).pop(); // Cofnij do profilu
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                     },
                     child: const Text(
                       'Rozumiem',
@@ -128,7 +128,7 @@ class _AuthScreenState extends State<AuthScreen> {
           }
         }
       } else {
-        // Sign In
+
         await Supabase.instance.client.auth.signInWithPassword(
           email: email,
           password: password,
@@ -138,7 +138,7 @@ class _AuthScreenState extends State<AuthScreen> {
           setState(() {
             _isLoading = false;
           });
-          Navigator.of(context).pop(); // Pop back to profile screen which will automatically show logged in UI
+          Navigator.of(context).pop();
         }
       }
     } catch (e) {
@@ -169,7 +169,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo/Brand Icon with glow
+
               Container(
                 width: 64,
                 height: 64,
@@ -195,8 +195,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
-              // Title
+
               Text(
                 _isRegister ? 'Utwórz konto' : 'Witaj z powrotem',
                 style: TextStyle(
@@ -220,7 +219,6 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Segment Control (Animated login / register toggle)
               Container(
                 height: 48,
                 padding: const EdgeInsets.all(4),
@@ -231,7 +229,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 child: Row(
                   children: [
-                    // Login segment button
+
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -261,7 +259,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                       ),
                     ),
-                    // Register segment button
+
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -296,7 +294,6 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Form fields card
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -308,7 +305,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Error message view if any
+
                       if (_errorMessage != null) ...[
                         Container(
                           width: double.infinity,
@@ -334,7 +331,6 @@ class _AuthScreenState extends State<AuthScreen> {
                         const SizedBox(height: 16),
                       ],
 
-                      // Email Field
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -378,7 +374,6 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Password Field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
@@ -430,7 +425,6 @@ class _AuthScreenState extends State<AuthScreen> {
                         },
                       ),
 
-                      // Password confirmation (Only for register)
                       if (_isRegister) ...[
                         const SizedBox(height: 16),
                         TextFormField(
@@ -486,7 +480,6 @@ class _AuthScreenState extends State<AuthScreen> {
                       ],
                       const SizedBox(height: 24),
 
-                      // Primary Button
                       SizedBox(
                         width: double.infinity,
                         height: 48,
@@ -524,7 +517,6 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Swap prompt link
               GestureDetector(
                 onTap: () {
                   if (!_isLoading) {

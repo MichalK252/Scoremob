@@ -32,7 +32,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _currentUser = Supabase.instance.client.auth.currentUser;
-    
+
     _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (mounted) {
         setState(() {
@@ -168,7 +168,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     );
   }
 
-  // --- GUEST VIEW ---
   Widget _buildGuestView() {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -239,7 +238,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     );
   }
 
-  // --- USER VIEW ---
   Widget _buildUserView() {
     if (_isLoading && _favoriteLeagues.isEmpty && _favoriteTeams.isEmpty) {
       return const Center(
@@ -273,7 +271,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         final dbFav = _favoriteLeagues[index];
         final String leagueId = dbFav['league_id'].toString();
 
-        // Find the matched league in LeaguesListScreen to obtain proper color styling
         final matchedLeague = LeaguesListScreen.leagues.firstWhere(
           (l) => l['id'] == leagueId,
           orElse: () => {
@@ -314,7 +311,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                     MaterialPageRoute(
                       builder: (context) => LeagueStandingsScreen(league: matchedLeague),
                     ),
-                  ).then((_) => _loadFavorites()); // Refresh on pop back
+                  ).then((_) => _loadFavorites());
                 },
                 splashColor: accentColor.withOpacity(0.15),
                 child: Padding(
@@ -420,7 +417,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 },
                 child: Stack(
                   children: [
-                    // Unfavorite Toggle Button
+
                     Positioned(
                       top: 4,
                       right: 4,
@@ -431,7 +428,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                         padding: const EdgeInsets.all(8),
                       ),
                     ),
-                    // Logo and Name Column
+
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),

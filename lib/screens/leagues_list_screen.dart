@@ -144,7 +144,7 @@ class LeaguesListScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
                     child: Row(
                       children: [
-                        // League Logo inside a styled Container
+
                         Container(
                           width: 50,
                           height: 50,
@@ -172,7 +172,7 @@ class LeaguesListScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        // League Name & Country
+
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +208,7 @@ class LeaguesListScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        // Trailing Arrow icon with glow accent
+
                         Container(
                           width: 32,
                           height: 32,

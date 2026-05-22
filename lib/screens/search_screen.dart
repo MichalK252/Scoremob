@@ -16,7 +16,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final FootballApiService _apiService = FootballApiService();
   final TextEditingController _searchController = TextEditingController();
-  
+
   Timer? _debounceTimer;
   List<Map<String, dynamic>> _teamResults = [];
   List<Map<String, dynamic>> _playerResults = [];
@@ -32,11 +32,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onSearchChanged(String query) {
     if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
-    
+
     _debounceTimer = Timer(const Duration(milliseconds: 600), () {
       final trimmed = query.trim();
       if (trimmed == _currentQuery) return;
-      
+
       setState(() {
         _currentQuery = trimmed;
       });

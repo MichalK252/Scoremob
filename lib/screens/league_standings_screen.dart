@@ -30,7 +30,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
   void initState() {
     super.initState();
     _selectedSeason = _getCurrentSeason();
-    // Generuje 6 ostatnich sezonów (np. 2025, 2024, 2023, 2022, 2021, 2020)
+
     _seasonsList = List.generate(6, (index) => _selectedSeason - index);
     _loadData();
     _checkLeagueFavoriteStatus();
@@ -90,7 +90,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
     });
   }
 
-  // Parse recent form character into badge widget
   Widget _buildFormBadge(String result) {
     Color color;
     String letter;
@@ -192,7 +191,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
     );
   }
 
-  // Show detailed bottom sheet for team details
   void _showTeamDetails(Map<String, dynamic> teamData, int totalTeams) {
     final rank = teamData['rank'] as int;
     final name = teamData['teamName'] as String;
@@ -207,7 +205,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
     final goalsDiff = teamData['goalsDiff'] as int;
     final formString = teamData['form'] as String? ?? '';
 
-    // Determine zone description
     String zoneText = '';
     Color zoneColor = Colors.transparent;
     if (widget.league['code'] == 'CL') {
@@ -265,7 +262,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top drag handle
+
                     Center(
                       child: Container(
                         width: 40,
@@ -277,7 +274,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                       ),
                     ),
                 const SizedBox(height: 20),
-                // Team Header
+
                 Row(
                   children: [
                     CachedNetworkImage(
@@ -400,7 +397,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                   ),
                 ],
                 Divider(height: 32, thickness: 1, color: context.border),
-                // Stats Grid
+
                 Text(
                   'Statystyki sezonu',
                   style: TextStyle(
@@ -430,7 +427,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                   ],
                 ),
                 Divider(height: 32, thickness: 1, color: context.border),
-                // Form History
+
                 if (formString.isNotEmpty) ...[
                   Row(
                     children: [
@@ -460,7 +457,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                       elevation: 0,
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Close bottom sheet
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -541,7 +538,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
-              // Beautiful Gradient App Bar
+
               SliverAppBar(
                 expandedHeight: 140.0,
                 floating: false,
@@ -619,12 +616,10 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                 ),
               ),
 
-              // Season Selector (always visible)
               SliverToBoxAdapter(
                 child: _buildSeasonSelector(accentColor),
               ),
 
-              // TabBar pinned at the bottom of the header
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _SliverAppBarDelegate(
@@ -696,7 +691,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           children: [
-            // Standing Table Header Row
+
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               decoration: BoxDecoration(
@@ -714,14 +709,12 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
               ),
             ),
 
-            // Table Items List
             ...List.generate(totalTeams, (index) {
               final team = standings[index];
               final rank = team['rank'] as int;
               final goalsDiff = team['goalsDiff'] as int;
               final isLastRow = index == totalTeams - 1;
 
-              // Visual indicator color depending on qualifications
               Color qualifierColor = Colors.transparent;
               if (widget.league['code'] == 'CL') {
                 if (rank <= 8) {
@@ -761,7 +754,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                     child: Row(
                       children: [
-                        // Position indicator and number
+
                         SizedBox(
                           width: 32,
                           child: Row(
@@ -791,7 +784,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           ),
                         ),
 
-                        // Team Logo and Name
                         Expanded(
                           child: Row(
                             children: [
@@ -822,7 +814,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           ),
                         ),
 
-                        // Matches played
                         SizedBox(
                           width: 32,
                           child: Text(
@@ -835,7 +826,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           ),
                         ),
 
-                        // Goal difference
                         SizedBox(
                           width: 44,
                           child: Text(
@@ -850,7 +840,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           ),
                         ),
 
-                        // Points
                         SizedBox(
                           width: 36,
                           child: Text(
@@ -870,7 +859,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
               );
             }),
 
-            // Table Legend helper note at bottom
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 16.0),
               child: Column(
@@ -891,7 +879,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Legend colors
+
                   Wrap(
                     spacing: 12,
                     runSpacing: 6,
@@ -1145,7 +1133,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              // Rank
+
               SizedBox(
                 width: 24,
                 child: Text(
@@ -1159,7 +1147,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
               ),
               const SizedBox(width: 8),
 
-              // Player Avatar
               Container(
                 width: 44,
                 height: 44,
@@ -1192,7 +1179,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Player Name and Team Name
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1241,7 +1227,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Rating and Matches played (Subtle badges)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -1282,7 +1267,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  // Stat Value
+
                   Text(
                     '$statValue $statLabel',
                     style: TextStyle(
@@ -1485,7 +1470,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: context.scaffoldBg, // Match scaffold background
+      color: context.scaffoldBg,
       child: tabBar,
     );
   }

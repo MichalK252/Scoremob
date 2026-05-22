@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class FootballApiService {
-  // Pamięć podręczna na mecze pobrane według dat (np. "2026-05-20" -> lista meczów)
+
   final Map<String, List<Map<String, dynamic>>> _dateMatchesCache = {};
 
   String get _baseUrl {
@@ -77,21 +77,20 @@ class FootballApiService {
     date ??= DateTime.now();
     final dateStr = date.toIso8601String().split('T')[0];
 
-    // Sprawdź cache
     if (_dateMatchesCache.containsKey(dateStr)) {
       print('Zwracanie meczów z pamięci podręcznej dla daty: $dateStr');
       return _dateMatchesCache[dateStr]!;
     }
 
     try {
-      // 1. Spróbuj pobrać z API-Football
+
       final matches = await _fetchMatchesApiFootball(date);
       _dateMatchesCache[dateStr] = matches;
       return matches;
     } catch (e) {
       print('API-Football nie powiodło się, przełączanie na Football-Data.org (Fallback): $e');
       try {
-        // 2. Fallback na Football-Data.org
+
         final matches = await _fetchMatchesFootballData(date);
         _dateMatchesCache[dateStr] = matches;
         return matches;
@@ -156,8 +155,6 @@ class FootballApiService {
       throw Exception('Brak klucza dla planu zapasowego (FOOTBALL_DATA_KEY) w .env');
     }
 
-    // W darmowej wersji Football-Data.org zapytania o pojedynczy dzień w przyszłości (dateFrom == dateTo) 
-    // zwracają pustą listę. Aby to obejść, pytamy o zakres 2 dni (dateFrom do dateFrom + 1 dzień) i filtrujemy wyniki w aplikacji.
     final url = Uri.parse('https://api.football-data.org/v4/matches?dateFrom=$dateStr&dateTo=$nextDateStr');
     print('Pobieranie meczów z Football-Data.org (Fallback): $url');
 
@@ -172,7 +169,6 @@ class FootballApiService {
       final decoded = json.decode(response.body);
       final List list = decoded['matches'] ?? [];
 
-      // Filtrujemy, aby zachować tylko mecze z wybranej daty
       final filteredList = list.where((item) {
         final matchUtcDate = item['utcDate'] as String?;
         if (matchUtcDate == null) return false;
@@ -185,9 +181,9 @@ class FootballApiService {
         final score = item['score'] ?? {};
         final competition = item['competition'] ?? {};
         final referees = item['referees'] as List? ?? [];
-        
-        final refereeName = referees.isNotEmpty 
-            ? referees.map((r) => r['name']).join(', ') 
+
+        final refereeName = referees.isNotEmpty
+            ? referees.map((r) => r['name']).join(', ')
             : 'Brak danych';
 
         return {
@@ -282,12 +278,12 @@ class FootballApiService {
     int? season,
   }) async {
     try {
-      // 1. Spróbuj pobrać z API-Football
+
       return await _fetchStandingsApiFootball(leagueId, season);
     } catch (e) {
       print('API-Football standings failed, switching to Football-Data.org: $e');
       try {
-        // 2. Fallback na Football-Data.org
+
         return await _fetchStandingsFootballData(leagueCode, season);
       } catch (fallbackError) {
         print('Fallback standings failed: $fallbackError');
@@ -306,7 +302,7 @@ class FootballApiService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       _checkResponseErrors(decoded);
-      
+
       final List results = decoded['response'] ?? [];
       if (results.isEmpty) return [];
 
@@ -429,7 +425,7 @@ class FootballApiService {
         _checkResponseErrors(decoded);
         final List list = decoded['response'] ?? [];
         if (list.isEmpty) return null;
-        
+
         final item = list[0];
         final team = item['team'] ?? {};
         final venue = item['venue'] ?? {};
@@ -453,17 +449,12 @@ class FootballApiService {
     }
   }
 
-  // ──────────────────────────────────────────────────────────────────
-  // Football-Data.org  – supported competition codes (free tier)
-  // ──────────────────────────────────────────────────────────────────
   static const List<String> _fdCompetitionCodes = [
     'PL', 'BL1', 'SA', 'PD', 'FL1', 'CL', 'ELC',
   ];
 
-  /// Cache:  teamName (lower) → Football-Data.org team ID
   final Map<String, int?> _fdTeamIdCache = {};
 
-  /// Resolve Football-Data.org team ID by scanning competition rosters.
   Future<int?> _resolveFdTeamId(String teamName) async {
     final key = teamName.toLowerCase();
     if (_fdTeamIdCache.containsKey(key)) return _fdTeamIdCache[key];
@@ -471,7 +462,6 @@ class FootballApiService {
     final apiKey = _getFootballDataKey();
     if (apiKey == null) return null;
 
-    // Search each supported competition for the team
     for (final code in _fdCompetitionCodes) {
       try {
         final url = Uri.parse(
@@ -500,14 +490,13 @@ class FootballApiService {
           }
         }
       } catch (_) {
-        // Continue to next competition
+
       }
     }
     _fdTeamIdCache[key] = null;
     return null;
   }
 
-  /// Fetch team matches from Football-Data.org
   Future<List<Map<String, dynamic>>> _fetchTeamMatchesFD({
     required int fdTeamId,
     required bool upcoming,
@@ -529,7 +518,6 @@ class FootballApiService {
       final decoded = json.decode(response.body);
       final List list = decoded['matches'] ?? [];
 
-      // For past matches – take last N; for upcoming – take first N
       List matches;
       if (!upcoming && list.length > limit) {
         matches = list.sublist(list.length - limit);
@@ -567,7 +555,7 @@ class FootballApiService {
   }
 
   void debugLog(String msg) {
-    // ignore: avoid_print
+
     print(msg);
   }
 
@@ -577,7 +565,7 @@ class FootballApiService {
     int limit = 15,
     String? teamName,
   }) async {
-    // ── 1. Try Football-Data.org (works on free tier for current season) ──
+
     if (teamName != null && teamName.isNotEmpty) {
       try {
         final fdId = await _resolveFdTeamId(teamName);
@@ -594,7 +582,6 @@ class FootballApiService {
       }
     }
 
-    // ── 2. Fallback: API-Football with season=2024 (free tier limit) ──
     try {
       final url = Uri.parse(
           '$_baseUrl/fixtures?team=$teamId&season=2024');
@@ -607,14 +594,12 @@ class FootballApiService {
         final List allFixtures = decoded['response'] ?? [];
         if (allFixtures.isEmpty) return [];
 
-        // Sort by date
         allFixtures.sort((a, b) {
           final dateA = a['fixture']?['date'] ?? '';
           final dateB = b['fixture']?['date'] ?? '';
           return dateA.toString().compareTo(dateB.toString());
         });
 
-        // Split into past / upcoming based on status
         final now = DateTime.now();
         List selected;
         if (upcoming) {
@@ -671,12 +656,6 @@ class FootballApiService {
     return [];
   }
 
-  // ──────────────────────────────────────────────────────────────────
-  // Player-related endpoints
-  // ──────────────────────────────────────────────────────────────────
-
-  /// Fetch the squad (roster) for a given team.
-  /// Returns a list of players with basic info.
   Future<List<Map<String, dynamic>>> fetchTeamSquad(String teamId) async {
     try {
       final url = Uri.parse('$_baseUrl/players/squads?team=$teamId');
@@ -712,7 +691,6 @@ class FootballApiService {
     }
   }
 
-  /// Fetch detailed player info including bio and per-league statistics.
   Future<Map<String, dynamic>?> fetchPlayerDetails(String playerId) async {
     try {
       final url = Uri.parse('$_baseUrl/players?id=$playerId&season=2024');
@@ -791,8 +769,6 @@ class FootballApiService {
     }
   }
 
-  /// Search for players globally by name.
-  /// Uses the /players/profiles endpoint.
   Future<List<Map<String, dynamic>>> searchPlayers(String query) async {
     try {
       final encodedQuery = Uri.encodeComponent(query);
@@ -827,7 +803,6 @@ class FootballApiService {
     }
   }
 
-  /// Fetch league top scorers for a given season.
   Future<List<Map<String, dynamic>>> fetchTopScorers(String leagueId, int season) async {
     try {
       final url = Uri.parse('$_baseUrl/players/topscorers?league=$leagueId&season=$season');
@@ -855,7 +830,6 @@ class FootballApiService {
     }
   }
 
-  /// Fetch league top assists for a given season.
   Future<List<Map<String, dynamic>>> fetchTopAssists(String leagueId, int season) async {
     try {
       final url = Uri.parse('$_baseUrl/players/topassists?league=$leagueId&season=$season');

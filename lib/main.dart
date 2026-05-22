@@ -8,11 +8,9 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicjalizacja flutter_dotenv
+
   await dotenv.load(fileName: ".env");
-  
-  // Inicjalizacja Supabase
+
   await Supabase.initialize(
     url: (dotenv.env['SUPABASE_URL'] ?? '').trim(),
     anonKey: (dotenv.env['SUPABASE_ANON_KEY'] ?? '').trim(),

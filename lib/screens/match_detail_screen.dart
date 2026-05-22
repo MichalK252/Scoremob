@@ -173,10 +173,9 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
 
           return Column(
             children: [
-              // 1. Scoreboard (Główna tablica)
+
               _buildScoreboardHeader(match, isLive, isFinished, scoreHome, scoreAway, hasScore, status),
-              
-              // 2. Tab Bar
+
               Container(
                 color: context.headerBg,
                 child: TabBar(
@@ -192,19 +191,16 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                   ],
                 ),
               ),
-              
-              // 3. Tab Bar View
+
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    // Tab 1: Szczegóły + Wydarzenia (Timeline)
+
                     _buildDetailsAndTimelineTab(match, events),
-                    
-                    // Tab 2: Składy (Lineups)
+
                     _buildLineupsTab(lineups),
-                    
-                    // Tab 3: Statystyki (Statistics)
+
                     _buildStatisticsTab(statistics),
                   ],
                 ),
@@ -232,7 +228,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Gospodarze
+
           Expanded(
             child: Column(
               children: [
@@ -250,7 +246,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
               ],
             ),
           ),
-          // Wynik / Status
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -279,17 +275,17 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                   decoration: BoxDecoration(
-                    color: isLive 
-                        ? (context.isDarkMode ? Colors.green.shade900.withOpacity(0.4) : Colors.green.shade50) 
-                        : (isFinished 
-                            ? (context.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100) 
+                    color: isLive
+                        ? (context.isDarkMode ? Colors.green.shade900.withOpacity(0.4) : Colors.green.shade50)
+                        : (isFinished
+                            ? (context.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100)
                             : (context.isDarkMode ? Colors.blue.shade900.withOpacity(0.3) : Colors.blue.shade50)),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isLive 
-                          ? (context.isDarkMode ? Colors.green.shade700 : Colors.green.shade300) 
-                          : (isFinished 
-                              ? (context.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300) 
+                      color: isLive
+                          ? (context.isDarkMode ? Colors.green.shade700 : Colors.green.shade300)
+                          : (isFinished
+                              ? (context.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300)
                               : (context.isDarkMode ? Colors.blue.shade700.withOpacity(0.5) : Colors.blue.shade200)),
                       width: 1,
                     ),
@@ -299,10 +295,10 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
-                      color: isLive 
-                          ? (context.isDarkMode ? Colors.green.shade300 : Colors.green.shade700) 
-                          : (isFinished 
-                              ? (context.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600) 
+                      color: isLive
+                          ? (context.isDarkMode ? Colors.green.shade300 : Colors.green.shade700)
+                          : (isFinished
+                              ? (context.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600)
                               : (context.isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700)),
                       letterSpacing: 0.5,
                     ),
@@ -311,7 +307,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
               ],
             ),
           ),
-          // Goście
+
           Expanded(
             child: Column(
               children: [
@@ -342,7 +338,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Podstawowe informacje meczowe
+
         Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
@@ -368,10 +364,9 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             ],
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
-        // Zdarzenia (Timeline)
+
         Text(
           'Przebieg meczu',
           style: TextStyle(
@@ -583,7 +578,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Formacje i Trenerzy
+
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
@@ -627,10 +622,9 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
             ],
           ),
         ),
-        
+
         const SizedBox(height: 20),
-        
-        // Nagłówek Składów wyjściowych
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
@@ -643,7 +637,6 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         ),
         const SizedBox(height: 10),
 
-        // Tabela wyjściowych XI side-by-side
         Container(
           decoration: BoxDecoration(
             color: context.cardBg,
@@ -665,7 +658,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Home Player
+
                     Expanded(
                       child: homePlayer != null
                           ? Row(
@@ -691,7 +684,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                           : const SizedBox(),
                     ),
                     const SizedBox(width: 16),
-                    // Away Player
+
                     Expanded(
                       child: awayPlayer != null
                           ? Row(
@@ -728,7 +721,6 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
 
         const SizedBox(height: 20),
 
-        // Nagłówek Rezerwowych
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
@@ -741,7 +733,6 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
         ),
         const SizedBox(height: 10),
 
-        // Tabela rezerwowych side-by-side
         Container(
           decoration: BoxDecoration(
             color: context.cardBg,
@@ -763,7 +754,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Home Player
+
                     Expanded(
                       child: homePlayer != null
                           ? Row(
@@ -789,7 +780,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                           : const SizedBox(),
                     ),
                     const SizedBox(width: 16),
-                    // Away Player
+
                     Expanded(
                       child: awayPlayer != null
                           ? Row(
@@ -854,7 +845,6 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
     final homeStatsList = statistics[0]['statistics'] as List? ?? [];
     final awayStatsList = statistics.length > 1 ? statistics[1]['statistics'] as List? ?? [] : [];
 
-    // Helper do wyciągania statystyk
     Map<String, dynamic>? getStat(String type) {
       final homeItem = homeStatsList.firstWhere((s) => s['type'] == type, orElse: () => null);
       final awayItem = awayStatsList.firstWhere((s) => s['type'] == type, orElse: () => null);

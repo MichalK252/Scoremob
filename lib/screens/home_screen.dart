@@ -21,32 +21,31 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<DateTime> _dates;
 
   static const Map<String, int> _leaguePriority = {
-    // API-Football IDs
-    '2': 1,    // UEFA Champions League
-    '1': 2,    // FIFA World Cup
-    '39': 3,   // Premier League
-    '140': 4,  // La Liga
-    '78': 5,   // Bundesliga
-    '135': 6,  // Serie A
-    '61': 7,   // Ligue 1
-    '106': 8,  // Ekstraklasa
-    '3': 9,    // UEFA Europa League
-    '13': 10,  // Copa Libertadores
-    '71': 11,  // Serie A Brazil
 
-    // Football-Data.org codes (Zapasowe API)
-    'CL': 1,   // UEFA Champions League
-    'WC': 2,   // FIFA World Cup
-    'PL': 3,   // Premier League
-    'PD': 4,   // La Liga (Primera Division)
-    'BL1': 5,  // Bundesliga
-    'SA': 6,   // Serie A
-    'FL1': 7,  // Ligue 1
-    'ELC': 8,  // Championship
-    'DED': 9,  // Eredivisie
-    'PPL': 10, // Primeira Liga
-    'CLI': 11, // Copa Libertadores
-    'BSA': 12, // Serie A Brazil
+    '2': 1,
+    '1': 2,
+    '39': 3,
+    '140': 4,
+    '78': 5,
+    '135': 6,
+    '61': 7,
+    '106': 8,
+    '3': 9,
+    '13': 10,
+    '71': 11,
+
+    'CL': 1,
+    'WC': 2,
+    'PL': 3,
+    'PD': 4,
+    'BL1': 5,
+    'SA': 6,
+    'FL1': 7,
+    'ELC': 8,
+    'DED': 9,
+    'PPL': 10,
+    'CLI': 11,
+    'BSA': 12,
   };
 
   @override
@@ -88,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         d.year == date.year && d.month == date.month && d.day == date.day);
 
     if (index != -1) {
-      const double itemWidth = 52.0; // 46 width + 6 horizontal margin (3 on each side)
+      const double itemWidth = 52.0;
       final screenWidth = MediaQuery.of(context).size.width;
       final targetOffset = (index * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
       final clampedOffset = targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent);
@@ -219,12 +218,10 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Map<String, dynamic>> matches,
     DateTime date,
   ) {
-    // API już filtruje mecze po dacie (w czasie UTC). Zwracamy całą listę,
-    // aby zapobiec znikaniu meczów z powodu przesunięcia stref czasowych (np. meczów nocnych).
+
     return matches;
   }
 
-  // Grupowanie meczów po ligach
   Map<String, List<Map<String, dynamic>>> _groupMatchesByLeague(
       List<Map<String, dynamic>> matches) {
     final grouped = <String, List<Map<String, dynamic>>>{};
@@ -295,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Selektor dat (pasek przesuwny)
+
           Container(
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             decoration: BoxDecoration(
@@ -380,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Lista meczów
+
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: _matchesFuture,
@@ -791,5 +788,4 @@ class _LiveDotIndicatorState extends State<_LiveDotIndicator>
     );
   }
 }
-
 

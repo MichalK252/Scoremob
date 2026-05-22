@@ -136,7 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- GUEST VIEW (Not Logged In) ---
   Widget _buildGuestView() {
     return CustomScrollView(
       slivers: [
@@ -184,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Title & Subtitle
+
                 Text(
                   'Konto ScoreMob',
                   style: TextStyle(
@@ -206,7 +205,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Access Buttons
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -243,7 +241,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Premium virtual Fan Card preview instead of benefits list
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -352,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                      // Glassmorphic lock overlay
+
                       Positioned.fill(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
@@ -414,14 +411,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- USER VIEW (Logged In) ---
   Widget _buildUserView(User user) {
     final email = user.email ?? 'Kibic MatchDay';
     final initials = _getUserInitials(email);
 
     return CustomScrollView(
       slivers: [
-        // App bar with title
+
         SliverAppBar(
           expandedHeight: 180.0,
           pinned: true,
@@ -444,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Initials Avatar
+
                       Container(
                         width: 72,
                         height: 72,
@@ -475,7 +471,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // Email
+
                       Text(
                         email,
                         style: TextStyle(
@@ -485,7 +481,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      // Active badge
+
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                         decoration: BoxDecoration(
@@ -510,13 +506,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
 
-        // Settings, Stats & Logout
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Quick Statistics Grid (Mock values)
+
                 Row(
                   children: [
                     Expanded(
@@ -540,7 +535,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Account Information Card
                 Container(
                   decoration: BoxDecoration(
                     color: context.cardBg,
@@ -583,7 +577,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Options List Card
                 Container(
                   decoration: BoxDecoration(
                     color: context.cardBg,
@@ -624,7 +617,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Sign Out Button
                 SizedBox(
                   width: double.infinity,
                   height: 48,

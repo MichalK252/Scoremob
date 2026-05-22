@@ -119,7 +119,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
     final birthPlace = data['birthPlace'] ?? '';
     final birthCountry = data['birthCountry'] ?? '';
 
-    // Determine position from first stat entry
     String position = '';
     if (stats.isNotEmpty) {
       position = stats[0]['position'] ?? '';
@@ -130,7 +129,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
       padding: const EdgeInsets.only(bottom: 32),
       child: Column(
         children: [
-          // ── Player Header ──
+
           _buildPlayerHeader(
             photo: photo,
             fullName: fullName,
@@ -139,7 +138,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           ),
           const SizedBox(height: 20),
 
-          // ── Bio Section ──
           _buildBioSection(
             age: age,
             height: height,
@@ -151,7 +149,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           ),
           const SizedBox(height: 20),
 
-          // ── Season Statistics ──
           if (stats.isNotEmpty) ...[
             Padding(
               padding:
@@ -187,9 +184,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Player Header
-  // ─────────────────────────────────────────────────────────────
   Widget _buildPlayerHeader({
     required String photo,
     required String fullName,
@@ -208,7 +202,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
       ),
       child: Column(
         children: [
-          // Photo
+
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -248,7 +242,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Full Name
           Text(
             fullName,
             textAlign: TextAlign.center,
@@ -261,7 +254,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
           ),
           const SizedBox(height: 8),
 
-          // Nationality
           if (nationality.isNotEmpty)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -280,7 +272,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
             ),
           const SizedBox(height: 10),
 
-          // Position Badge
           if (position.isNotEmpty)
             Container(
               padding:
@@ -308,9 +299,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Bio Section
-  // ─────────────────────────────────────────────────────────────
   Widget _buildBioSection({
     required String age,
     required String height,
@@ -389,7 +377,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
   }
 
   Widget _buildBioTile(String label, String value, int totalCount) {
-    // Each tile is half-width
+
     return SizedBox(
       width: (MediaQuery.of(context).size.width - 32 - 36) / 2,
       child: Padding(
@@ -423,9 +411,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // League Statistics Card
-  // ─────────────────────────────────────────────────────────────
   Widget _buildLeagueStatCard(Map<String, dynamic> stat) {
     final leagueName = stat['leagueName'] ?? '';
     final leagueLogo = stat['leagueLogo'] ?? '';
@@ -445,7 +430,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
     final tacklesTotal = stat['tacklesTotal']?.toString() ?? '0';
     final rating = stat['rating']?.toString() ?? '-';
 
-    // Format rating to 1 decimal
     String formattedRating = '-';
     if (rating.isNotEmpty && rating != '-' && rating != 'null') {
       try {
@@ -469,7 +453,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // League Header
+
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -510,7 +494,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
               ),
             ),
 
-            // Team row
             if (teamName.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -538,7 +521,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                 ),
               ),
 
-            // Stats Grid
             Padding(
               padding: const EdgeInsets.all(12),
               child: GridView.count(
@@ -681,9 +663,6 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Helpers
-  // ─────────────────────────────────────────────────────────────
   String _translatePosition(String position) {
     switch (position.toLowerCase()) {
       case 'goalkeeper':

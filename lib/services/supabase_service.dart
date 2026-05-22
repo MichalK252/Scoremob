@@ -9,8 +9,6 @@ class SupabaseService {
 
   String? get _currentUserId => _client.auth.currentUser?.id;
 
-  // --- LEAGUES ---
-
   Future<List<Map<String, dynamic>>> fetchFavoriteLeagues() async {
     final userId = _currentUserId;
     if (userId == null) return [];
@@ -79,8 +77,6 @@ class SupabaseService {
       throw Exception('Błąd zapisu w bazie Supabase.');
     }
   }
-
-  // --- TEAMS ---
 
   Future<List<Map<String, dynamic>>> fetchFavoriteTeams() async {
     final userId = _currentUserId;

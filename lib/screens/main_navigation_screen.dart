@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; // Wymagane dla ImageFilter (glassmorphism)
+import 'dart:ui';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'leagues_list_screen.dart';
@@ -32,14 +32,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Umożliwia przewijanie zawartości pod przezroczystym, pływającym paskiem
+
       extendBody: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
       bottomNavigationBar: SafeArea(
-        bottom: false, // Samodzielnie kontrolujemy margines
+        bottom: false,
         child: Container(
           margin: const EdgeInsets.only(left: 20, right: 20, bottom: 24),
           height: 72,
@@ -68,7 +68,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
                 child: Stack(
                   children: [
-                    // Animowany pływający wskaźnik w tle (pigułka)
+
                     AnimatedAlign(
                       alignment: Alignment(-1.0 + (_currentIndex * (2.0 / 3.0)), 0.0),
                       duration: const Duration(milliseconds: 300),
@@ -104,7 +104,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                         ),
                       ),
                     ),
-                    // Przyciski nawigacyjne
+
                     Row(
                       children: [
                         _buildNavItem(0, Icons.sports_soccer_rounded, 'Mecze'),
