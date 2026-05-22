@@ -1,96 +1,97 @@
 # ScoreMob
 
-ScoreMob to nowoczesna i dynamiczna aplikacja mobilna stworzona w technologii **Flutter**, służąca do śledzenia wyników meczów piłkarskich, tabel ligowych, statystyk zawodników oraz zarządzania ulubionymi drużynami i ligami w czasie rzeczywistym. 
+ScoreMob is a modern and dynamic mobile application built using **Flutter**, designed to track football match scores, league standings, player statistics, and manage favorite teams and leagues in real-time.
 
-Aplikacja integruje się z platformą **Supabase** w celu autoryzacji użytkowników i synchronizacji danych w chmurze, a także korzysta z zewnętrznych interfejsów API do pobierania aktualnych danych sportowych.
-
----
-
-## 🌟 Kluczowe Funkcje
-
-### 1. Autoryzacja i Profil Użytkownika
-* **Rejestracja i Logowanie**: Pełne wsparcie dla uwierzytelniania za pomocą **Supabase Auth** z walidacją i spolszczonymi komunikatami o błędach.
-* **Karta Kibica (ScoreMob Fan Card)**: Unikalny, animowany element wizualny w widoku profilu dla zalogowanych użytkowników oraz interaktywny podgląd (zablokowany) dla gości w celu zachęcenia do rejestracji.
-
-### 2. Panel Ulubionych (Favorites)
-* **Ligi i Drużyny**: Zalogowani użytkownicy mogą dodawać swoje ulubione rozgrywki i kluby do obserwowanych za pomocą ikon gwiazdek i serc.
-* **Synchronizacja w Czasie Rzeczywistym**: Zaimplementowany mechanizm `StreamController.broadcast()` w `SupabaseService` automatycznie synchronizuje status ulubionych pomiędzy wszystkimi zakładkami i ekranami bez konieczności odświeżania widoku.
-
-### 3. Zaawansowane Statystyki i Tabele Ligowe
-* **Dynamiczne Tabele**: Widok tabeli ligowej z podziałem na punkty, mecze rozegrane, bramki oraz bilans meczów u siebie i na wyjeździe.
-* **Strzelcy i Asystenci**: Zakładka statystyk prezentująca najlepszych strzelców oraz asystentów wybranej ligi wraz z odmianą językową (np. *gol*, *gole*, *goli*).
-* **Inteligentny Fallback Sezonów (Free API Tier)**: Aplikacja automatycznie wykrywa ograniczenia planu API dla najnowszych sezonów (np. 2025/26) i bezpiecznie cofa zapytanie do sezonu 2024/25, wyświetlając użytkownikowi estetyczny baner informacyjny o limicie planu.
-
-### 4. Wyszukiwarka i Szczegóły
-* **Zunifikowane Wyszukiwanie**: Pojedynczy pasek wyszukiwania, który równolegle i asynchronicznie odpytuje API o pasujące kluby oraz profile zawodników.
-* **Szczegóły Drużyny**: Informacje o stadionie (nazwa, pojemność, miasto), rok założenia, lista nadchodzących i minionych meczów oraz zakładka **SKŁAD** (podzielona na pozycje zawodników).
-* **Szczegóły Zawodnika**: Profil zawodnika zawierający dane biograficzne oraz szczegółowe statystyki z podziałem na rozgrywki.
-
-### 5. Personalizacja (Motyw Jasny / Ciemny)
-* Dynamiczne przełączanie motywów (Light / Dark Mode) z natychmiastowym odświeżeniem kolorystyki wszystkich komponentów.
-* Zapisywanie preferencji użytkownika w pamięci lokalnej urządzenia przy użyciu pakietu `shared_preferences`.
+The application integrates with the **Supabase** platform for user authentication and cloud data synchronization, and uses external football APIs to retrieve up-to-date sports data.
 
 ---
 
-## 🛠️ Stos Technologiczny
+## 🌟 Key Features
+
+### 1. User Authentication & Profile
+* **Sign Up and Sign In**: Full support for authentication using **Supabase Auth** with validation and localized Polish error messages.
+* **Fan Card (ScoreMob Fan Card)**: A unique, animated visual element in the profile view for logged-in users, and an interactive locked preview for guests to encourage sign-ups.
+
+### 2. Favorites Panel
+* **Leagues and Teams**: Logged-in users can add their favorite competitions and clubs to their watch list using star and heart icons.
+* **Real-Time Synchronization**: An implemented `StreamController.broadcast()` mechanism in `SupabaseService` automatically synchronizes the favorites status across all tabs and screens without requiring a manual page refresh.
+
+### 3. Advanced Statistics & League Standings
+* **Dynamic Standings**: League standings view showing points, matches played, goals, and home/away match records.
+* **Top Scorers & Assist Makers**: A statistics tab displaying the league's top scorers and assist makers with correct Polish grammatical suffix forms (e.g. *gol*, *gole*, *goli*).
+* **Smart Season Fallback (Free API Tier)**: The application automatically detects API plan limitations for the latest seasons (e.g., 2025/26) and seamlessly falls back to the 2024/25 season, presenting an elegant information banner explaining the API plan constraints.
+
+### 4. Search & Details
+* **Unified Search**: A single search bar that queries matching clubs and player profiles in parallel and asynchronously.
+* **Team Details**: Information about the stadium (name, capacity, city), founding year, lists of upcoming and past matches, and a **SQUAD** tab (grouped by player positions).
+* **Player Details**: A player profile showing biographical data and detailed statistics broken down by competitions.
+
+### 5. Personalization (Light / Dark Theme)
+* Dynamic theme switching (Light / Dark Mode) with instant color updates across all UI components.
+* Saves user preferences locally on the device using the `shared_preferences` package.
+
+---
+
+## 🛠️ Tech Stack
 
 * **Framework**: [Flutter](https://flutter.dev/) (Material 3)
-* **Zarządzanie Stanem**: [Provider](https://pub.dev/packages/provider)
-* **Baza Danych & Auth**: [Supabase](https://supabase.com/) (PostgreSQL z politykami RLS)
-* **Przechowywanie Lokalne**: [SharedPreferences](https://pub.dev/packages/shared_preferences)
-* **Konfiguracja Środowiskowa**: [Flutter Dotenv](https://pub.dev/packages/flutter_dotenv)
+* **State Management**: [Provider](https://pub.dev/packages/provider)
+* **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL with RLS policies)
+* **Local Storage**: [SharedPreferences](https://pub.dev/packages/shared_preferences)
+* **Environment Configuration**: [Flutter Dotenv](https://pub.dev/packages/flutter_dotenv)
 
 ---
 
-## 🚀 Uruchomienie Projektu
+## 🚀 Getting Started
 
-### Wymagania wstępne
-1. Zainstalowany Flutter SDK (wersja >= 3.0.0).
-2. Skonfigurowany emulator Android/iOS lub przeglądarka Chrome (do uruchomienia w trybie Web).
-3. Aktywny projekt w Supabase oraz klucz do API-Football (RapidAPI).
+### Prerequisites
+1. Installed Flutter SDK (version >= 3.0.0).
+2. Configured Android/iOS emulator or Chrome browser (for web debugging).
+3. Active Supabase project and credentials for Football API and Football Data API.
 
-### Konfiguracja środowiska
-W katalogu głównym projektu utwórz plik `.env` i uzupełnij go swoimi danymi:
+### Environment Setup
+Create a `.env` file in the root directory of the project and fill it with your data:
 
 ```env
 SUPABASE_URL=https://your-supabase-project.supabase.co
 SUPABASE_ANON_KEY=your-supabase-anon-key
-RAPIDAPI_KEY=your-rapidapi-key
+FOOTBALL_DATA_KEY=your-football-data-key
+FOOTBALL_API_KEY=your-football-api-key
 ```
 
-### Instalacja i uruchomienie
+### Installation and Execution
 
-1. Pobierz zależności:
+1. Get dependencies:
    ```bash
    flutter pub get
    ```
 
-2. Uruchom analizator kodu, aby upewnić się, że nie ma błędów:
+2. Run the analyzer to ensure there are no compilation errors:
    ```bash
    flutter analyze
    ```
 
-3. Uruchom aplikację:
+3. Run the application:
    ```bash
    flutter run
    ```
 
 ---
 
-## 📁 Struktura Projektu (Główne pliki)
+## 📁 Project Structure (Main Files)
 
-* `lib/main.dart` - Punkt wejściowy aplikacji, inicjalizacja Dotenv, Supabase oraz ThemeProvidera.
-* `lib/theme/app_theme.dart` - Definicja palety kolorów motywu jasnego/ciemnego oraz extension na `BuildContext`.
+* `lib/main.dart` - Application entry point, initializing Dotenv, Supabase, and ThemeProvider.
+* `lib/theme/app_theme.dart` - Definition of the Light/Dark theme colors and BuildContext extension.
 * `lib/services/`
-  * `theme_provider.dart` - Zarządzanie stanem motywu i jego zapisem.
-  * `supabase_service.dart` - Obsługa komunikacji z Supabase (Favorites DB, RLS, Streams).
-  * `football_api.dart` - Integracja z zewnętrznymi API piłkarskimi, obsługa błędów i fallbacków.
+  * `theme_provider.dart` - Manages active theme state and persistence.
+  * `supabase_service.dart` - Handles communication with Supabase (Favorites DB, RLS, Streams).
+  * `football_api.dart` - Integrates external football APIs with robust error handling and season fallback.
 * `lib/screens/`
-  * `main_navigation_screen.dart` - Pasek nawigacyjny o nowoczesnym, półprzezroczystym designie.
-  * `home_screen.dart` - Lista dzisiejszych meczów z filtrem daty.
-  * `search_screen.dart` - Zunifikowana wyszukiwarka drużyn i zawodników.
-  * `favorites_screen.dart` - Panel ulubionych lig i drużyn z odświeżaniem w czasie rzeczywistym.
-  * `profile_screen.dart` - Zarządzanie profilem, Karta Kibica oraz przełącznik motywu.
-  * `league_standings_screen.dart` - Tabele ligowe, statystyki strzelców/asystentów i baner fallback.
-  * `team_detail_screen.dart` - Szczegółowy profil drużyny z meczami i składem.
-  * `player_detail_screen.dart` - Szczegółowy profil zawodnika z metrykami meczowymi.
+  * `main_navigation_screen.dart` - Navigation bar with a modern, glassmorphic design.
+  * `home_screen.dart` - Today's matches list with a date picker.
+  * `search_screen.dart` - Unified search screen for teams and players.
+  * `favorites_screen.dart` - Favorites dashboard for leagues and teams with real-time refresh.
+  * `profile_screen.dart` - Profile page featuring the Fan Card and theme toggle.
+  * `league_standings_screen.dart` - League tables, stats (scorers/assists), and the fallback warning banner.
+  * `team_detail_screen.dart` - Detailed team profile with match schedules and the squad roster.
+  * `player_detail_screen.dart` - Detailed player biography and seasonal performance stats.
