@@ -259,7 +259,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isFav ? 'Dodano drużynę do ulubionych!' : 'Usunięto drużynę z ulubionych'),
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: context.accent,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -306,7 +306,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final themeAccentColor = Colors.blueAccent;
+    final themeAccentColor = context.accent;
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
@@ -409,7 +409,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withOpacity(0.1),
                         context.headerBg,
                       ],
                       begin: Alignment.topCenter,
@@ -604,7 +604,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blueAccent.withValues(alpha: 0.7),
+                            color: context.accent.withOpacity(0.7),
                             letterSpacing: 0.5,
                           ),
                           maxLines: 1,
@@ -667,13 +667,13 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                             : Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: Colors.blueAccent.withValues(alpha: 0.12),
+                                  color: context.accentMuted,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   status == 'IN_PLAY' ? 'LIVE' : timeStr,
                                   style: TextStyle(
-                                    color: status == 'IN_PLAY' ? Colors.redAccent : Colors.blueAccent,
+                                    color: status == 'IN_PLAY' ? context.liveColor : context.accent,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -736,7 +736,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
             child: Text(
               _standingsLeagueName!,
               style: TextStyle(
-                color: Colors.blueAccent.withValues(alpha: 0.8),
+                color: context.accent.withOpacity(0.8),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
@@ -778,10 +778,10 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isCurrentTeam ? Colors.blueAccent.withValues(alpha: 0.1) : Colors.transparent,
+                  color: isCurrentTeam ? context.accent.withOpacity(0.1) : Colors.transparent,
                   border: Border(
                     left: isCurrentTeam
-                        ? const BorderSide(color: Colors.blueAccent, width: 3)
+                        ? BorderSide(color: context.accent, width: 3)
                         : BorderSide.none,
                     bottom: BorderSide(color: context.border, width: 1),
                   ),
@@ -793,7 +793,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                       child: Text(
                         '${row['rank']}',
                         style: TextStyle(
-                          color: isCurrentTeam ? Colors.blueAccent : context.textSecondary,
+                          color: isCurrentTeam ? context.accent : context.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -825,7 +825,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     _dataCell('${row['draw']}', isCurrentTeam),
                     _dataCell('${row['lost']}', isCurrentTeam),
                     _dataCell('${row['goalsFor']}:${row['goalsAgainst']}', isCurrentTeam, width: 36),
-                    _dataCell('${row['points']}', isCurrentTeam, bold: true, color: isCurrentTeam ? Colors.blueAccent : context.textColor),
+                    _dataCell('${row['points']}', isCurrentTeam, bold: true, color: isCurrentTeam ? context.accent : context.textColor),
                   ],
                 ),
               );
@@ -895,7 +895,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
     };
     final positionColors = {
       'Goalkeeper': Colors.amber,
-      'Defender': Colors.blueAccent,
+      'Defender': context.accent,
       'Midfielder': Colors.greenAccent,
       'Attacker': Colors.redAccent,
     };
@@ -928,7 +928,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                     width: 3,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: positionColors[pos] ?? Colors.blueAccent,
+                      color: positionColors[pos] ?? context.accent,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -962,7 +962,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
               ),
             ),
 
-            ...grouped[pos]!.map((player) => _buildPlayerRow(player, positionColors[pos] ?? Colors.blueAccent)),
+            ...grouped[pos]!.map((player) => _buildPlayerRow(player, positionColors[pos] ?? context.accent)),
           ],
       ],
     );
@@ -1068,7 +1068,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> with SingleTickerPr
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: posColor.withValues(alpha: 0.12),
+                      color: posColor.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(

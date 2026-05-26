@@ -180,7 +180,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 color: context.headerBg,
                 child: TabBar(
                   controller: _tabController,
-                  indicatorColor: Colors.blue.shade500,
+                  indicatorColor: context.accent,
                   labelColor: context.textColor,
                   unselectedLabelColor: context.textSecondary,
                   labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
@@ -257,7 +257,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
-                      color: isLive ? Colors.green.shade400 : context.textColor,
+                      color: isLive ? context.liveColor : context.textColor,
                       letterSpacing: 2,
                     ),
                   ),
@@ -276,17 +276,17 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                   padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                   decoration: BoxDecoration(
                     color: isLive
-                        ? (context.isDarkMode ? Colors.green.shade900.withOpacity(0.4) : Colors.green.shade50)
+                        ? (context.isDarkMode ? context.liveColor.withOpacity(0.15) : context.liveColor.withOpacity(0.08))
                         : (isFinished
                             ? (context.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100)
-                            : (context.isDarkMode ? Colors.blue.shade900.withOpacity(0.3) : Colors.blue.shade50)),
+                            : (context.isDarkMode ? context.accent.withOpacity(0.15) : context.accentMuted)),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isLive
-                          ? (context.isDarkMode ? Colors.green.shade700 : Colors.green.shade300)
+                          ? (context.isDarkMode ? context.liveColor : context.liveColor.withOpacity(0.4))
                           : (isFinished
                               ? (context.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300)
-                              : (context.isDarkMode ? Colors.blue.shade700.withOpacity(0.5) : Colors.blue.shade200)),
+                              : (context.isDarkMode ? context.accent.withOpacity(0.5) : context.accent.withOpacity(0.3))),
                       width: 1,
                     ),
                   ),
@@ -296,10 +296,10 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                       color: isLive
-                          ? (context.isDarkMode ? Colors.green.shade300 : Colors.green.shade700)
+                          ? context.liveColor
                           : (isFinished
                               ? (context.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600)
-                              : (context.isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700)),
+                              : context.accent),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -422,7 +422,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
   Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, color: Colors.blue.shade400, size: 18),
+        Icon(icon, color: context.accent, size: 18),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -667,7 +667,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                   width: 20,
                                   child: Text(
                                     homePlayer['number']?.toString() ?? '',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.accent),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -763,7 +763,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                                   width: 20,
                                   child: Text(
                                     homePlayer['number']?.toString() ?? '',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue.shade400),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.accent),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -953,7 +953,7 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTicker
                 children: [
                   Expanded(
                     flex: (homeRatio * 100).toInt(),
-                    child: Container(color: Colors.blue.shade600),
+                    child: Container(color: context.accent),
                   ),
                   Expanded(
                     flex: ((1 - homeRatio) * 100).toInt(),

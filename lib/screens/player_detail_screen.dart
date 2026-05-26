@@ -72,8 +72,8 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.blueAccent),
+          ? Center(
+              child: CircularProgressIndicator(color: context.accent),
             )
           : _playerData == null
               ? _buildEmptyState()
@@ -159,7 +159,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
                     width: 3,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: context.accent,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -207,12 +207,12 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.blueAccent.withValues(alpha: 0.3),
+                color: context.accent.withOpacity(0.3),
                 width: 3,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blueAccent.withValues(alpha: 0.15),
+                  color: context.accent.withOpacity(0.15),
                   blurRadius: 24,
                   spreadRadius: 2,
                 ),
@@ -277,17 +277,17 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
-                color: Colors.blueAccent.withValues(alpha: 0.15),
+                color: context.accent.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.blueAccent.withValues(alpha: 0.3),
+                  color: context.accent.withOpacity(0.3),
                   width: 1,
                 ),
               ),
               child: Text(
                 _translatePosition(position),
-                style: const TextStyle(
-                  color: Colors.blueAccent,
+                style: TextStyle(
+                  color: context.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
@@ -349,7 +349,7 @@ class _PlayerDetailScreenState extends State<PlayerDetailScreen> {
             Row(
               children: [
                 Icon(Icons.info_outline_rounded,
-                    size: 16, color: Colors.blueAccent.withValues(alpha: 0.7)),
+                    size: 16, color: context.accent.withOpacity(0.7)),
                 const SizedBox(width: 8),
                 Text(
                   'Informacje',

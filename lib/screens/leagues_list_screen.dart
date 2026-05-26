@@ -119,7 +119,7 @@ class LeaguesListScreen extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: context.isDarkMode ? 0.3 : 0.08),
+                  color: Colors.black.withOpacity(context.isDarkMode ? 0.3 : 0.08),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

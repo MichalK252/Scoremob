@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../services/football_api.dart';
 import '../theme/app_theme.dart';
 import 'match_detail_screen.dart';
-import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -87,9 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
         d.year == date.year && d.month == date.month && d.day == date.day);
 
     if (index != -1) {
-      const double itemWidth = 52.0;
+      const double itemSize = 60.0; // 52 width + 8 horizontal margin (4 on each side)
+      const double startPadding = 12.0;
       final screenWidth = MediaQuery.of(context).size.width;
-      final targetOffset = (index * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
+      final targetOffset = (index * itemSize) + startPadding + (itemSize / 2) - (screenWidth / 2);
       final clampedOffset = targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent);
 
       if (animate) {
@@ -163,34 +163,67 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.blue.shade400,
-                textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            dialogTheme: DialogThemeData(
+              elevation: 12,
+              shadowColor: Colors.black.withOpacity(0.35),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(color: context.border, width: 1),
               ),
             ),
             colorScheme: ColorScheme.dark(
-              primary: Colors.blue.shade600,
+              primary: context.accent,
               onPrimary: Colors.white,
               surface: context.cardBg,
               onSurface: context.textColor,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: context.accent,
+                textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
             ),
             datePickerTheme: DatePickerThemeData(
               backgroundColor: context.cardBg,
               headerBackgroundColor: context.headerBg,
               headerForegroundColor: context.textColor,
+              headerHeadlineStyle: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: context.textColor,
+                letterSpacing: -0.5,
+              ),
+              headerHelpStyle: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: context.textSecondary,
+                letterSpacing: 0.5,
+              ),
+              weekdayStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: context.textSecondary,
+              ),
               dayForegroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
                   return Colors.white;
                 }
-                return context.textColor.withOpacity(0.8);
+                if (states.contains(WidgetState.disabled)) {
+                  return context.textQuaternary;
+                }
+                return context.textColor;
               }),
-              todayForegroundColor: WidgetStateProperty.all(Colors.blue.shade400),
-              todayBorder: BorderSide(color: Colors.blue.shade400, width: 1.5),
-              dividerColor: context.border,
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return context.accent;
+                }
+                return Colors.transparent;
+              }),
+              todayForegroundColor: WidgetStateProperty.all(context.accent),
+              todayBorder: BorderSide(color: context.accent.withOpacity(0.5), width: 1.5),
+              yearForegroundColor: WidgetStateProperty.all(context.textColor),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: context.border, width: 1),
+                borderRadius: BorderRadius.circular(24),
               ),
             ),
           ),
@@ -240,53 +273,57 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
+        toolbarHeight: 76,
         backgroundColor: context.headerBg,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Scoremob',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-                color: context.textColor,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'ScoreMob',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.6,
+                        color: context.textColor,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '.',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: context.accent,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              _formatFullDate(_selectedDate),
-              style: TextStyle(
-                fontSize: 11,
-                color: context.textSecondary,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 4),
+              Text(
+                _formatFullDate(_selectedDate),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: context.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         centerTitle: false,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.search_rounded,
-              color: Colors.blue.shade400,
-              size: 20,
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0, top: 8.0),
+            child: _buildHeaderActionButton(
+              icon: Icons.calendar_today_rounded,
+              onPressed: _showDatePicker,
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SearchScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.calendar_month,
-              color: Colors.blue.shade400,
-              size: 20,
-            ),
-            onPressed: _showDatePicker,
           ),
         ],
       ),
@@ -294,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
 
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 6.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             decoration: BoxDecoration(
               color: context.headerBg,
               border: Border(
@@ -305,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             child: SizedBox(
-              height: 52,
+              height: 64,
               child: ListView.builder(
                 controller: _scrollController,
                 scrollDirection: Axis.horizontal,
@@ -324,16 +361,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => _onDateSelected(date),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
-                      width: 46,
-                      margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                      width: 52,
+                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue.shade600 : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
+                        color: isSelected ? context.accent : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isToday && !isSelected
-                              ? Colors.blue.shade800.withOpacity(0.4)
+                              ? context.accent.withOpacity(0.3)
                               : Colors.transparent,
-                          width: 1,
+                          width: 1.2,
                         ),
                       ),
                       child: Column(
@@ -342,29 +379,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             _getShortDayName(date),
                             style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 10,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                               color: isSelected
                                   ? Colors.white
-                                  : (isToday ? Colors.blue.shade400 : context.textSecondary),
+                                  : (isToday ? context.accent : context.textSecondary),
+                              letterSpacing: 0.2,
                             ),
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 4),
                           Text(
                             date.day.toString(),
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : context.textColor.withOpacity(0.85),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w900,
+                              color: isSelected ? Colors.white : context.textColor,
                             ),
                           ),
                           if (isToday && !isSelected) ...[
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 3),
                             Container(
-                              width: 3,
-                              height: 3,
+                              width: 4,
+                              height: 4,
                               decoration: BoxDecoration(
-                                color: Colors.blue.shade400,
+                                color: context.accent,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -445,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 3,
                                   height: 16,
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.shade500,
+                                    color: context.accent,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
@@ -529,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: Colors.green.shade500,
+              color: context.liveColor,
               letterSpacing: 0.5,
             ),
           ),
@@ -543,16 +581,16 @@ class _HomeScreenState extends State<HomeScreen> {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.bold,
-          color: Colors.grey.shade500,
+           color: context.textTertiary,
         ),
       );
     } else if (isScheduled) {
       statusWidget = Text(
         _formatTime(match['utcDate']),
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white70,
+         style: TextStyle(
+           fontSize: 12,
+           fontWeight: FontWeight.bold,
+           color: context.textColor,
         ),
       );
     } else {
@@ -561,7 +599,7 @@ class _HomeScreenState extends State<HomeScreen> {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.bold,
-          color: Colors.red.shade400,
+           color: context.liveColor,
         ),
       );
     }
@@ -581,18 +619,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Row(
         children: [
           SizedBox(
-            width: 54,
+            width: 60,
             child: Align(
               alignment: Alignment.centerLeft,
               child: statusWidget,
             ),
           ),
           Container(
-            height: 24,
+            height: 32,
             width: 1,
             color: context.border,
           ),
@@ -604,13 +642,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     _buildTeamCrestMini(match['homeTeamCrest']),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         match['homeTeam'] ?? '',
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isHomeWinner ? FontWeight.bold : FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: isHomeWinner ? FontWeight.w800 : FontWeight.w600,
                           color: isHomeWinner ? context.textColor : context.textColor.withOpacity(0.85),
                         ),
                         maxLines: 1,
@@ -619,17 +657,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     _buildTeamCrestMini(match['awayTeamCrest']),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         match['awayTeam'] ?? '',
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isAwayWinner ? FontWeight.bold : FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: isAwayWinner ? FontWeight.w800 : FontWeight.w600,
                           color: isAwayWinner ? context.textColor : context.textColor.withOpacity(0.85),
                         ),
                         maxLines: 1,
@@ -648,21 +686,21 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 hasScore ? scoreHome.toString() : '-',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
                   color: hasScore
-                      ? (isLive ? Colors.green.shade400 : (isHomeWinner ? context.textColor : context.textColor.withOpacity(0.7)))
+                       ? (isLive ? context.liveColor : (isHomeWinner ? context.textColor : context.textColor.withOpacity(0.7)))
                       : Colors.grey.shade600,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Text(
                 hasScore ? scoreAway.toString() : '-',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
                   color: hasScore
-                      ? (isLive ? Colors.green.shade400 : (isAwayWinner ? context.textColor : context.textColor.withOpacity(0.7)))
+                       ? (isLive ? context.liveColor : (isAwayWinner ? context.textColor : context.textColor.withOpacity(0.7)))
                       : Colors.grey.shade600,
                 ),
               ),
@@ -674,40 +712,69 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTeamCrestMini(String crestUrl) {
-    Widget imageWidget = const Icon(Icons.sports_soccer, size: 18, color: Colors.grey);
+    Widget imageWidget = const Icon(Icons.sports_soccer, size: 22, color: Colors.grey);
 
     if (crestUrl.isNotEmpty) {
       if (crestUrl.endsWith('.svg')) {
         imageWidget = SvgPicture.network(
           crestUrl,
-          width: 18,
-          height: 18,
+          width: 24,
+          height: 24,
           placeholderBuilder: (context) => const SizedBox(
-            width: 18,
-            height: 18,
+            width: 24,
+            height: 24,
             child: CircularProgressIndicator(strokeWidth: 1),
           ),
         );
       } else {
         imageWidget = CachedNetworkImage(
           imageUrl: crestUrl,
-          width: 18,
-          height: 18,
+          width: 24,
+          height: 24,
           placeholder: (context, url) => const SizedBox(
-            width: 18,
-            height: 18,
+            width: 24,
+            height: 24,
             child: CircularProgressIndicator(strokeWidth: 1),
           ),
           errorWidget: (context, url, error) =>
-              const Icon(Icons.sports_soccer, size: 18, color: Colors.grey),
+              const Icon(Icons.sports_soccer, size: 22, color: Colors.grey),
         );
       }
     }
 
     return SizedBox(
-      width: 18,
-      height: 18,
+      width: 24,
+      height: 24,
       child: Center(child: imageWidget),
+    );
+  }
+
+  Widget _buildHeaderActionButton({required IconData icon, required VoidCallback onPressed}) {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: context.cardBg,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: context.border,
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(19),
+          onTap: onPressed,
+          child: Center(
+            child: Icon(
+              icon,
+              color: context.textColor.withOpacity(0.8),
+              size: 18,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -779,7 +846,7 @@ class _LiveDotIndicatorState extends State<_LiveDotIndicator>
             width: 5,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.green.shade500,
+               color: context.liveColor,
               shape: BoxShape.circle,
             ),
           ),

@@ -99,10 +99,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Usunięto drużynę z ulubionych'),
-            backgroundColor: Colors.blueAccent,
-            duration: Duration(seconds: 1),
+          SnackBar(
+            content: const Text('Usunięto drużynę z ulubionych'),
+            backgroundColor: context.accent,
+            duration: const Duration(seconds: 1),
           ),
         );
       }
@@ -147,9 +147,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         bottom: user != null
             ? TabBar(
                 controller: _tabController,
-                indicatorColor: Colors.blueAccent,
+                indicatorColor: context.accent,
                 indicatorWeight: 3,
-                labelColor: Colors.blueAccent,
+                labelColor: context.accent,
                 unselectedLabelColor: context.textSecondary,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 tabs: const [
@@ -161,7 +161,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       ),
       body: RefreshIndicator(
         onRefresh: _loadFavorites,
-        color: Colors.blueAccent,
+        color: context.accent,
         backgroundColor: context.cardBg,
         child: user == null ? _buildGuestView() : _buildUserView(),
       ),
@@ -182,9 +182,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.08),
+                  color: context.accent.withOpacity(0.08),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.blueAccent.withOpacity(0.16), width: 1.5),
+                  border: Border.all(color: context.accent.withOpacity(0.16), width: 1.5),
                 ),
                 child: const Icon(
                   Icons.favorite_rounded,
@@ -208,7 +208,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 'Zaloguj się, aby zapisywać ulubione drużyny i ligi.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: Colors.white.withOpacity(0.5),
                   fontSize: 13,
                   height: 1.5,
                 ),
@@ -220,7 +220,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 child: ElevatedButton(
                   onPressed: _navigateToAuth,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: context.accent,
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
@@ -240,8 +240,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
 
   Widget _buildUserView() {
     if (_isLoading && _favoriteLeagues.isEmpty && _favoriteTeams.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.blueAccent),
+      return Center(
+        child: CircularProgressIndicator(color: context.accent),
       );
     }
 

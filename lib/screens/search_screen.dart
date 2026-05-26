@@ -104,10 +104,14 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         backgroundColor: context.headerBg,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textColor, size: 18),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
+        titleSpacing: Navigator.canPop(context) ? 0 : 16,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textColor, size: 18),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: Container(
           height: 40,
           decoration: BoxDecoration(
@@ -119,7 +123,7 @@ class _SearchScreenState extends State<SearchScreen> {
             controller: _searchController,
             onChanged: _onSearchChanged,
             style: TextStyle(color: context.textColor, fontSize: 14),
-            cursorColor: Colors.blueAccent,
+            cursorColor: context.accent,
             decoration: InputDecoration(
               hintText: 'Wyszukaj drużynę lub zawodnika...',
               hintStyle: TextStyle(color: context.textSecondary, fontSize: 13),
@@ -142,9 +146,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildBody() {
     if (_isSearching) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
-          color: Colors.blueAccent,
+          color: context.accent,
         ),
       );
     }
@@ -166,15 +170,15 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     return ListView(
-      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      padding: const EdgeInsets.only(top: 8, bottom: 108),
       physics: const BouncingScrollPhysics(),
       children: [
         if (_teamResults.isNotEmpty) ...[
-          _buildSectionHeader('DRUŻYNY', Colors.blueAccent, _teamResults.length),
+          _buildSectionHeader('DRUŻYNY', context.accent, _teamResults.length),
           ..._teamResults.map((team) => _buildTeamCard(team)),
         ],
         if (_playerResults.isNotEmpty) ...[
-          _buildSectionHeader('ZAWODNICY', Colors.greenAccent, _playerResults.length),
+          _buildSectionHeader('ZAWODNICY', context.accent, _playerResults.length),
           ..._playerResults.map((player) => _buildPlayerCard(player)),
         ],
       ],
@@ -533,7 +537,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 96.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -588,7 +592,7 @@ class _SearchScreenState extends State<SearchScreen> {
       case 'defender':
         return Colors.greenAccent;
       case 'midfielder':
-        return Colors.blueAccent;
+        return context.accent;
       case 'attacker':
         return Colors.redAccent;
       default:

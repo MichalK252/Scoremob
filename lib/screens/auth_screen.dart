@@ -81,9 +81,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Konto utworzone i zalogowane pomyślnie!'),
-                backgroundColor: Colors.blueAccent,
+              SnackBar(
+                content: const Text('Konto utworzone i zalogowane pomyślnie!'),
+                backgroundColor: context.accent,
               ),
             );
           } else {
@@ -99,7 +99,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 title: Row(
                   children: [
-                    const Icon(Icons.mark_email_read_rounded, color: Colors.blueAccent),
+                    Icon(Icons.mark_email_read_rounded, color: context.accent),
                     const SizedBox(width: 10),
                     Text(
                       'Potwierdź e-mail',
@@ -117,9 +117,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
                     },
-                    child: const Text(
+                    child: Text(
                       'Rozumiem',
-                      style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.accent, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -174,24 +174,24 @@ class _AuthScreenState extends State<AuthScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.08),
+                  color: context.accentMuted,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.blueAccent.withOpacity(0.2),
+                    color: context.accent.withOpacity(0.2),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blueAccent.withOpacity(0.1),
+                      color: context.accent.withOpacity(0.1),
                       blurRadius: 16,
                       spreadRadius: 2,
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.sports_soccer_rounded,
                   size: 32,
-                  color: Colors.blueAccent,
+                  color: context.accent,
                 ),
               ),
               const SizedBox(height: 24),
@@ -244,7 +244,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: !_isRegister ? Colors.blueAccent : Colors.transparent,
+                            color: !_isRegister ? context.accent : Colors.transparent,
                           ),
                           child: Center(
                             child: Text(
@@ -274,7 +274,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: _isRegister ? Colors.blueAccent : Colors.transparent,
+                            color: _isRegister ? context.accent : Colors.transparent,
                           ),
                           child: Center(
                             child: Text(
@@ -350,7 +350,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.blueAccent, width: 1.5),
+                            borderSide: BorderSide(color: context.accent, width: 1.5),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -403,7 +403,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.blueAccent, width: 1.5),
+                            borderSide: BorderSide(color: context.accent, width: 1.5),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -456,7 +456,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width: 1.5),
+                              borderSide: BorderSide(color: context.accent, width: 1.5),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -486,7 +486,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
+                            backgroundColor: context.accent,
                             foregroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -530,8 +530,8 @@ class _AuthScreenState extends State<AuthScreen> {
                   _isRegister
                       ? 'Masz już konto? Zaloguj się'
                       : 'Nie masz konta? Zarejestruj się',
-                  style: const TextStyle(
-                    color: Colors.blueAccent,
+                  style: TextStyle(
+                    color: context.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),

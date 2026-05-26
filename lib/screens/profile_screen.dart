@@ -76,9 +76,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await Supabase.instance.client.auth.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wylogowano pomyślnie'),
-            backgroundColor: Colors.blueAccent,
+          SnackBar(
+            content: const Text('Wylogowano pomyślnie'),
+            backgroundColor: context.accent,
           ),
         );
       }
@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    context.isDarkMode ? const Color(0xFF0F1E36) : const Color(0xFFE3EEFF),
+                    context.isDarkMode ? const Color(0xFF0F261A) : const Color(0xFFE2F0E6),
                     context.scaffoldBg,
                   ],
                   begin: Alignment.topCenter,
@@ -162,14 +162,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.withOpacity(0.06),
+                      color: context.accent.withOpacity(0.06),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.blueAccent.withOpacity(0.2), width: 1),
+                      border: Border.all(color: context.accent.withOpacity(0.2), width: 1),
                     ),
                     child: Icon(
                       Icons.account_circle_outlined,
                       size: 40,
-                      color: Colors.blueAccent.withOpacity(0.6),
+                      color: context.accent.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -211,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: ElevatedButton(
                     onPressed: () => _navigateToAuth(isRegister: false),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: context.accent,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
@@ -256,13 +256,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: Colors.black.withOpacity(0.4),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
                     ],
                     border: Border.all(
-                      color: Colors.blueAccent.withValues(alpha: 0.15),
+                      color: context.accent.withOpacity(0.15),
                       width: 1,
                     ),
                   ),
@@ -274,9 +274,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.sports_soccer_rounded, color: Colors.blueAccent, size: 20),
+                                  Icon(Icons.sports_soccer_rounded, color: context.accent, size: 20),
                                   SizedBox(width: 8),
                                   Text(
                                     'SCOREMOB FAN CARD',
@@ -292,10 +292,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.08),
+                                  color: Colors.white.withOpacity(0.08),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.12),
+                                    color: Colors.white.withOpacity(0.12),
                                     width: 0.8,
                                   ),
                                 ),
@@ -324,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             'Status karty: Nieaktywowana',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: Colors.white.withOpacity(0.5),
                               fontSize: 11,
                             ),
                           ),
@@ -335,14 +335,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Text(
                                 '•••• •••• •••• 9928',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: Colors.white.withOpacity(0.5),
                                   fontSize: 13,
                                   letterSpacing: 2,
                                 ),
                               ),
                               Icon(
                                 Icons.nfc_rounded,
-                                color: Colors.white.withValues(alpha: 0.5),
+                                color: Colors.white.withOpacity(0.5),
                                 size: 20,
                               ),
                             ],
@@ -354,7 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: Container(
-                            color: context.scaffoldBg.withValues(alpha: 0.78),
+                            color: context.scaffoldBg.withOpacity(0.78),
                             child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -362,16 +362,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.06),
+                                      color: Colors.white.withOpacity(0.06),
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.12),
+                                        color: Colors.white.withOpacity(0.12),
                                         width: 1,
                                       ),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.lock_outline_rounded,
-                                      color: Colors.blueAccent,
+                                      color: context.accent,
                                       size: 22,
                                     ),
                                   ),
@@ -390,7 +390,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     'Zaloguj się, aby aktywować profil i statystyki',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.45),
+                                      color: Colors.white.withOpacity(0.45),
                                       fontSize: 10,
                                     ),
                                   ),
@@ -445,15 +445,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.blueAccent, Colors.tealAccent],
+                          gradient: LinearGradient(
+                            colors: [context.accent, const Color(0xFF9BE8B0)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.2),
+                              color: context.accent.withOpacity(0.2),
                               blurRadius: 12,
                               spreadRadius: 1,
                             ),
@@ -607,7 +607,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               onChanged: (bool value) {
                                 themeProvider.toggleTheme(value);
                               },
-                              activeColor: Colors.blueAccent,
+                              activeColor: context.accent,
                             ),
                           );
                         },

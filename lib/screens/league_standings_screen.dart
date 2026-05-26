@@ -53,7 +53,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(!_isLeagueFav ? 'Dodano ligę do ulubionych!' : 'Usunięto ligę z ulubionych'),
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: context.accent,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -95,15 +95,15 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
     String letter;
     switch (result.toUpperCase()) {
       case 'W':
-        color = Colors.green.shade600;
+        color = context.winColor;
         letter = 'Z';
         break;
       case 'D':
-        color = Colors.grey.shade600;
+        color = context.drawColor;
         letter = 'R';
         break;
       case 'L':
-        color = Colors.red.shade600;
+        color = context.lossColor;
         letter = 'P';
         break;
       default:
@@ -354,7 +354,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(newVal ? 'Dodano drużynę do ulubionych!' : 'Usunięto drużynę z ulubionych'),
-                              backgroundColor: Colors.blueAccent,
+                              backgroundColor: context.accent,
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -450,7 +450,7 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: context.accent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
