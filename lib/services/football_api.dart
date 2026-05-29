@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FootballApiService {
 
@@ -73,29 +74,63 @@ class FootballApiService {
     }
   }
 
+  Future<void> _saveToPersistentCache(String dateStr, List<Map<String, dynamic>> matches) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cacheKey = 'matches_$dateStr';
+      await prefs.setString(cacheKey, json.encode(matches));
+    } catch (e) {
+      // Ignore cache write errors
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> _readFromPersistentCache(String dateStr) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cacheKey = 'matches_$dateStr';
+      final cachedJson = prefs.getString(cacheKey);
+      if (cachedJson != null) {
+        final List decoded = json.decode(cachedJson);
+        return decoded.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {
+      // Ignore cache read errors
+    }
+    return null;
+  }
+
   Future<List<Map<String, dynamic>>> fetchMatches({DateTime? date}) async {
     date ??= DateTime.now();
     final dateStr = date.toIso8601String().split('T')[0];
 
     if (_dateMatchesCache.containsKey(dateStr)) {
-      print('Zwracanie meczów z pamięci podręcznej dla daty: $dateStr');
       return _dateMatchesCache[dateStr]!;
+    }
+
+    final persistentCached = await _readFromPersistentCache(dateStr);
+    if (persistentCached != null && persistentCached.isNotEmpty) {
+      _dateMatchesCache[dateStr] = persistentCached;
+      return persistentCached;
     }
 
     try {
 
       final matches = await _fetchMatchesApiFootball(date);
       _dateMatchesCache[dateStr] = matches;
+      if (matches.isNotEmpty) {
+        await _saveToPersistentCache(dateStr, matches);
+      }
       return matches;
     } catch (e) {
-      print('API-Football nie powiodło się, przełączanie na Football-Data.org (Fallback): $e');
       try {
 
         final matches = await _fetchMatchesFootballData(date);
         _dateMatchesCache[dateStr] = matches;
+        if (matches.isNotEmpty) {
+          await _saveToPersistentCache(dateStr, matches);
+        }
         return matches;
       } catch (fallbackError) {
-        print('Zapasowe API również nie powiodło się: $fallbackError');
         throw Exception('Błąd API głównych i zapasowych.\nAPI-Football: $e\nFootball-Data: $fallbackError');
       }
     }
@@ -104,7 +139,6 @@ class FootballApiService {
   Future<List<Map<String, dynamic>>> _fetchMatchesApiFootball(DateTime date) async {
     final dateStr = date.toIso8601String().split('T')[0];
     final url = Uri.parse('$_baseUrl/fixtures?date=$dateStr');
-    print('Pobieranie meczów z API-Football: $url');
 
     final response = await http.get(url, headers: _getHeaders());
 
@@ -148,15 +182,14 @@ class FootballApiService {
   }
 
   Future<List<Map<String, dynamic>>> _fetchMatchesFootballData(DateTime date) async {
-    final dateStr = date.toIso8601String().split('T')[0];
+    final prevDateStr = date.subtract(const Duration(days: 1)).toIso8601String().split('T')[0];
     final nextDateStr = date.add(const Duration(days: 1)).toIso8601String().split('T')[0];
     final apiKey = _getFootballDataKey();
     if (apiKey == null) {
       throw Exception('Brak klucza dla planu zapasowego (FOOTBALL_DATA_KEY) w .env');
     }
 
-    final url = Uri.parse('https://api.football-data.org/v4/matches?dateFrom=$dateStr&dateTo=$nextDateStr');
-    print('Pobieranie meczów z Football-Data.org (Fallback): $url');
+    final url = Uri.parse('https://api.football-data.org/v4/matches?dateFrom=$prevDateStr&dateTo=$nextDateStr');
 
     final response = await http.get(
       url,
@@ -170,9 +203,16 @@ class FootballApiService {
       final List list = decoded['matches'] ?? [];
 
       final filteredList = list.where((item) {
-        final matchUtcDate = item['utcDate'] as String?;
-        if (matchUtcDate == null) return false;
-        return matchUtcDate.startsWith(dateStr);
+        final matchUtcDateStr = item['utcDate'] as String?;
+        if (matchUtcDateStr == null) return false;
+        try {
+          final matchDateLocal = DateTime.parse(matchUtcDateStr).toLocal();
+          return matchDateLocal.year == date.year &&
+                 matchDateLocal.month == date.month &&
+                 matchDateLocal.day == date.day;
+        } catch (_) {
+          return false;
+        }
       }).toList();
 
       return filteredList.map((item) {
@@ -281,12 +321,10 @@ class FootballApiService {
 
       return await _fetchStandingsApiFootball(leagueId, season);
     } catch (e) {
-      print('API-Football standings failed, switching to Football-Data.org: $e');
       try {
 
         return await _fetchStandingsFootballData(leagueCode, season);
       } catch (fallbackError) {
-        print('Fallback standings failed: $fallbackError');
         throw Exception('Błąd pobierania tabeli ligowej z obu API.\nAPI-Football: $e\nFootball-Data: $fallbackError');
       }
     }
@@ -295,7 +333,6 @@ class FootballApiService {
   Future<List<Map<String, dynamic>>> _fetchStandingsApiFootball(String leagueId, int? season) async {
     final seasonYear = season ?? _getSeasonYear();
     final url = Uri.parse('$_baseUrl/standings?league=$leagueId&season=$seasonYear');
-    print('Pobieranie tabeli z API-Football: $url');
 
     final response = await http.get(url, headers: _getHeaders());
 
@@ -344,7 +381,6 @@ class FootballApiService {
 
     final seasonParam = season != null ? '?season=$season' : '';
     final url = Uri.parse('https://api.football-data.org/v4/competitions/$leagueCode/standings$seasonParam');
-    print('Pobieranie tabeli z Football-Data.org: $url');
 
     final response = await http.get(
       url,
@@ -387,7 +423,6 @@ class FootballApiService {
     try {
       final encodedQuery = Uri.encodeComponent(query);
       final url = Uri.parse('$_baseUrl/teams?search=$encodedQuery');
-      print('Searching teams via API-Football: $url');
       final response = await http.get(url, headers: _getHeaders());
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -410,7 +445,6 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('API-Football search failed, trying fallback: $e');
       return [];
     }
   }
@@ -418,7 +452,6 @@ class FootballApiService {
   Future<Map<String, dynamic>?> fetchTeamDetails(String teamId) async {
     try {
       final url = Uri.parse('$_baseUrl/teams?id=$teamId');
-      print('Fetching team details via API-Football: $url');
       final response = await http.get(url, headers: _getHeaders());
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -444,7 +477,6 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching team details: $e');
       return null;
     }
   }
@@ -555,8 +587,7 @@ class FootballApiService {
   }
 
   void debugLog(String msg) {
-
-    print(msg);
+    // Debug logging disabled in production
   }
 
   Future<List<Map<String, dynamic>>> fetchTeamFixtures({
@@ -686,7 +717,6 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching team squad: $e');
       return [];
     }
   }
@@ -764,7 +794,6 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching player details: $e');
       return null;
     }
   }
@@ -798,7 +827,6 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error searching players: $e');
       return [];
     }
   }
@@ -820,10 +848,8 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching top scorers: $e');
       final errStr = e.toString().toLowerCase();
       if ((errStr.contains('plan') || errStr.contains('free plans do not have access to this season')) && season > 2024) {
-        print('Ograniczenie planu dla sezonu $season. Próba automatycznego pobrania dla sezonu 2024...');
         return fetchTopScorers(leagueId, 2024);
       }
       rethrow;
@@ -847,10 +873,8 @@ class FootballApiService {
         throw Exception('Błąd HTTP ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching top assists: $e');
       final errStr = e.toString().toLowerCase();
       if ((errStr.contains('plan') || errStr.contains('free plans do not have access to this season')) && season > 2024) {
-        print('Ograniczenie planu dla sezonu $season. Próba automatycznego pobrania dla sezonu 2024...');
         return fetchTopAssists(leagueId, 2024);
       }
       rethrow;

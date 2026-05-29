@@ -22,7 +22,6 @@ class SupabaseService {
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching favorite leagues: $e');
       return [];
     }
   }
@@ -41,7 +40,6 @@ class SupabaseService {
 
       return response != null;
     } catch (e) {
-      print('Error checking league favorite status: $e');
       return false;
     }
   }
@@ -73,7 +71,6 @@ class SupabaseService {
       }
       favoritesRefreshController.add(null);
     } catch (e) {
-      print('Error toggling favorite league: $e');
       throw Exception('Błąd zapisu w bazie Supabase.');
     }
   }
@@ -91,7 +88,6 @@ class SupabaseService {
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching favorite teams: $e');
       return [];
     }
   }
@@ -110,7 +106,6 @@ class SupabaseService {
 
       return response != null;
     } catch (e) {
-      print('Error checking team favorite status: $e');
       return false;
     }
   }
@@ -141,7 +136,6 @@ class SupabaseService {
       }
       favoritesRefreshController.add(null);
     } catch (e) {
-      print('Error toggling favorite team: $e');
       throw Exception('Błąd zapisu w bazie Supabase.');
     }
   }

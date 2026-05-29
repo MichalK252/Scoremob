@@ -689,176 +689,224 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
 
         return ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 108),
           children: [
-
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               decoration: BoxDecoration(
-                color: context.headerBg,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                color: context.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: context.border, width: 1.0),
               ),
-              child: Row(
+              clipBehavior: Clip.antiAlias,
+              child: Column(
                 children: [
-                  SizedBox(width: 32, child: Text('#', style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold))),
-                  Expanded(child: Text('Drużyna', style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold))),
-                  SizedBox(width: 32, child: Text('M', textAlign: TextAlign.center, style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold))),
-                  SizedBox(width: 44, child: Text('Bilans', textAlign: TextAlign.center, style: TextStyle(color: context.textSecondary, fontSize: 11, fontWeight: FontWeight.bold))),
-                  SizedBox(width: 36, child: Text('Pkt', textAlign: TextAlign.right, style: TextStyle(color: accentColor, fontSize: 11, fontWeight: FontWeight.bold))),
-                ],
-              ),
-            ),
-
-            ...List.generate(totalTeams, (index) {
-              final team = standings[index];
-              final rank = team['rank'] as int;
-              final goalsDiff = team['goalsDiff'] as int;
-              final isLastRow = index == totalTeams - 1;
-
-              Color qualifierColor = Colors.transparent;
-              if (widget.league['code'] == 'CL') {
-                if (rank <= 8) {
-                  qualifierColor = Colors.blue.shade500;
-                } else if (rank <= 24) {
-                  qualifierColor = Colors.orange.shade500;
-                }
-              } else {
-                if (rank <= 4) {
-                  qualifierColor = Colors.blue.shade500;
-                } else if (rank <= 6) {
-                  qualifierColor = Colors.orange.shade500;
-                } else if (rank > totalTeams - 3) {
-                  qualifierColor = Colors.red.shade500;
-                }
-              }
-
-              return Container(
-                decoration: BoxDecoration(
-                  color: context.cardBg,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: isLastRow ? Colors.transparent : context.border,
-                      width: 0.5,
-                    ),
-                  ),
-                  borderRadius: isLastRow
-                      ? const BorderRadius.vertical(bottom: Radius.circular(12))
-                      : BorderRadius.zero,
-                ),
-                child: InkWell(
-                  onTap: () => _showTeamDetails(team, totalTeams),
-                  borderRadius: isLastRow
-                      ? const BorderRadius.vertical(bottom: Radius.circular(12))
-                      : BorderRadius.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    color: context.headerBg.withOpacity(0.4),
                     child: Row(
                       children: [
-
-                        SizedBox(
-                          width: 32,
-                          child: Row(
-                            children: [
-                              if (qualifierColor != Colors.transparent) ...[
-                                Container(
-                                  width: 3,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: qualifierColor,
-                                    borderRadius: BorderRadius.circular(1.5),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                              ] else ...[
-                                const SizedBox(width: 7),
-                              ],
-                              Text(
-                                '$rank',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: context.textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
+                        const SizedBox(width: 38),
                         Expanded(
-                          child: Row(
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: team['teamLogo'] as String,
-                                width: 20,
-                                height: 20,
-                                errorWidget: (context, url, error) => const Icon(
-                                  Icons.sports_soccer,
-                                  size: 20,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  team['teamName'] as String,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.textSecondary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            'Drużyna',
+                            style: TextStyle(
+                              color: context.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-
                         SizedBox(
                           width: 32,
                           child: Text(
-                            '${team['played']}',
+                            'M',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 12,
                               color: context.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
-
                         SizedBox(
-                          width: 44,
+                          width: 48,
                           child: Text(
-                            goalsDiff > 0 ? '+$goalsDiff' : '$goalsDiff',
+                            'Bilans',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 12,
-                              color: goalsDiff > 0
-                                  ? Colors.green.shade400
-                                  : (goalsDiff < 0 ? Colors.red.shade400 : context.textTertiary),
+                              color: context.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
-
                         SizedBox(
                           width: 36,
                           child: Text(
-                            '${team['points']}',
+                            'Pkt',
                             textAlign: TextAlign.right,
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: context.textColor,
+                              color: accentColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              );
-            }),
+                  ...List.generate(totalTeams, (index) {
+                    final team = standings[index];
+                    final rank = team['rank'] as int;
+                    final goalsDiff = team['goalsDiff'] as int;
+                    final points = team['points'] as int;
+                    final played = team['played'] as int;
+                    final teamName = team['teamName'] as String;
+                    final teamLogo = team['teamLogo'] as String;
+                    final isLastRow = index == totalTeams - 1;
 
+                    Color qualifierColor = Colors.transparent;
+                    if (widget.league['code'] == 'CL') {
+                      if (rank <= 8) {
+                        qualifierColor = Colors.blue.shade500;
+                      } else if (rank <= 24) {
+                        qualifierColor = Colors.orange.shade500;
+                      }
+                    } else {
+                      if (rank <= 4) {
+                        qualifierColor = Colors.blue.shade500;
+                      } else if (rank <= 6) {
+                        qualifierColor = Colors.orange.shade500;
+                      } else if (rank > totalTeams - 3) {
+                        qualifierColor = Colors.red.shade500;
+                      }
+                    }
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: isLastRow ? Colors.transparent : context.border.withOpacity(0.5),
+                            width: 0.8,
+                          ),
+                        ),
+                      ),
+                      child: InkWell(
+                        onTap: () => _showTeamDetails(team, totalTeams),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 10, 16, 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 3.5,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: qualifierColor,
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(2),
+                                    bottomRight: Radius.circular(2),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              SizedBox(
+                                width: 22,
+                                child: Text(
+                                  '$rank',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.textColor,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    CachedNetworkImage(
+                                      imageUrl: teamLogo,
+                                      width: 24,
+                                      height: 24,
+                                      errorWidget: (context, url, error) => const Icon(
+                                        Icons.sports_soccer,
+                                        size: 24,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        teamName,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: context.textColor,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 32,
+                                child: Text(
+                                  '$played',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: context.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 48,
+                                child: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: goalsDiff > 0
+                                          ? Colors.green.withOpacity(0.1)
+                                          : (goalsDiff < 0 ? Colors.red.withOpacity(0.1) : context.border.withOpacity(0.4)),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      goalsDiff > 0 ? '+$goalsDiff' : '$goalsDiff',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: goalsDiff > 0
+                                            ? Colors.green.shade400
+                                            : (goalsDiff < 0 ? Colors.red.shade400 : context.textSecondary),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 36,
+                                child: Text(
+                                  '$points',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: context.textColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 16.0),
               child: Column(
@@ -879,7 +927,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-
                   Wrap(
                     spacing: 12,
                     runSpacing: 6,
@@ -893,7 +940,6 @@ class _LeagueStandingsScreenState extends State<LeagueStandingsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 104),
           ],
         );
       },
